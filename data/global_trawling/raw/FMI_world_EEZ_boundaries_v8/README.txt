@@ -1,0 +1,1 @@
+These data were downloaded from https://hub.arcgis.com/datasets/schools-BE::world-maritime-boundaries-v8/about on August 4, 2022. They represent version 8 of the Flanders Marine Institute's EEZ dataset.
