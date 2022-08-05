@@ -80,24 +80,21 @@ trawlEEZs <- c("Argentina",
                "United States",
                "Vietnam")
 
+# define function to subset the data by EEZ
+
 EEZ_Argentina <- FMI_EEZ_polygons_v11_raw[FMI_EEZ_polygons_v11_raw$SOVEREIGN1=="Argentina",]
 
 st_crop(harv_dtm, harv_boundary)
 
-# define function to subset the data by EEZ
-
 # run the calculations
-
-# *** these still blew up memory running with the entire dataset; even worse
-# when using mclapply ... but much better with a reduced dataset
 
 # set up structure to hold results
 
 predicted.PgCO2_per_year_to_atmos_EEZs <- as.data.frame(matrix(data = NA, 
                                                           nrow = length(seqFracYears.raw),
-                                                          ncol = 2))
+                                                          ncol = 1+length(trawlEEZs)))
 colnames(predicted.PgCO2_per_year_to_atmos_EEZs) = c("Year",
-                                                "PgCO2_per_year_to_atmos_China")
+                                                     trawlEEZs)
 predicted.PgCO2_per_year_to_atmos_EEZs[,1] <- unlist(seqFracYears.raw)
 
 # iterate
