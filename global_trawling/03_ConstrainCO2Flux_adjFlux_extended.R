@@ -6,15 +6,15 @@
 # Author: Jamie Collins, jcollins@edf.org
 
 # This third script performs the actual adjustment of the Sala et al
-# benthic CO2 flux data and includes a time-integrated calculation for total
-# global emissions to the atmosphere over a 100 year time period.
+# benthic CO2 flux data and includes time-integrated estimates of total
+# global emissions to the atmosphere for a variety of time horizons
 
 # *** Assumes user has already run 01_ConstrainCO2Flux_IO.R (in current session)
 # and that the object "coord.matches.RData" generated using
 # 02_ConstrainCO2Flux_coordMatch.R (likely via AWS) is present in
 # global-trawling-CO2/data/global_trawling/derived/output/
 
-# set the working directory; create directory for output
+# set the working directory
 
 setwd("~/Code/global-trawling-CO2/") # for my laptop
 # setwd("~/global-trawling-CO2/") # for AWS
@@ -89,7 +89,7 @@ for (i in 1:nrow(predicted.PgCO2_per_year_to_atmos)) {
 
 # save
 
-write.csv(predicted.PgCO2_per_year_to_atmos, file = "data/global_trawling/derived/output/adjCO2efflux_PgCO2_yr.csv",
+write.csv(predicted.PgCO2_per_year_to_atmos, file = "data/global_trawling/derived/output/adjCO2efflux_global_PgCO2_yr.csv",
           row.names = FALSE)
 
 # now we can make time-integrated estimates of total emissions to the atmosphere
@@ -122,12 +122,12 @@ for (i in 1:nrow(adjCO2efflux_PgCO2_cumulative)) {
   
 }
 
-write.csv(adjCO2efflux_PgCO2_cumulative, file = "data/global_trawling/derived/output/adjCO2efflux_PgCO2_cumulative.csv",
+write.csv(adjCO2efflux_PgCO2_cumulative, file = "data/global_trawling/derived/output/adjCO2efflux_global_PgCO2_cumulative.csv",
           row.names = FALSE)
 
 plot(adjCO2efflux_PgCO2_cumulative$Year, adjCO2efflux_PgCO2_cumulative$PgCO2_to_atmos_cumulative,
      type = "l", col = "black", lwd = 1, xlab="Year", 
-     ylab = expression(paste("Pg CO"["2"]," emitted to atmosphere (cumulative)")))
+     ylab = expression(paste("Pg CO"["2"]," emitted to atmosphere from global benthic trawling activity (cumulative)")))
 
 # after 100 y of continuous trawling, a cumulative 1.27 Pg CO2 will have reached the atmosphere 
 # after 200 y of continuous trawling, a cumulative 3.95 Pg CO2 will have reached the atmosphere 
