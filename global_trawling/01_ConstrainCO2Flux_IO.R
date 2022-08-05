@@ -34,26 +34,21 @@ library(parallel) # part of base; doesn't need to be installed
 
 # take the necessary detour into MATLAB at this point, if the output hasn't been generated; then return to R
 
-# the output from gen_fracs_to_constrain_trawlCO2.m -- 25, 50, and 100 year sequestration fractions for ocean bottom depths, plus the necessary metadata -- should now be in several .csv files found in data/global_trawling/derived/benthic_seqfractions
+# the output from gen_fracs_to_constrain_trawlCO2.m -- sequestration fractions for ocean bottom depths, plus the necessary metadata -- should now be in several .csv files found in data/global_trawling/derived/benthic_seqfractions
 
-# load these output files
+# load the benthic sequestration fractions for entire Siegel et al. model domain,
+# from 1-200 y, then 200-1000 y in 100 y increments
+# also load the years
 
-fseq_bottom_1yr.raw <- read.csv("data/global_trawling/derived/benthic_seqfractions/fseq_bottom_1yr.csv",
-                                 header = FALSE)
-fseq_bottom_5yr.raw <- read.csv("data/global_trawling/derived/benthic_seqfractions/fseq_bottom_5yr.csv",
-                                 header = FALSE)
-fseq_bottom_10yr.raw <- read.csv("data/global_trawling/derived/benthic_seqfractions/fseq_bottom_10yr.csv",
-                                 header = FALSE)
-fseq_bottom_25yr.raw <- read.csv("data/global_trawling/derived/benthic_seqfractions/fseq_bottom_25yr.csv",
-                            header = FALSE)
-fseq_bottom_50yr.raw <- read.csv("data/global_trawling/derived/benthic_seqfractions/fseq_bottom_50yr.csv",
-                                 header = FALSE)
-fseq_bottom_75yr.raw <- read.csv("data/global_trawling/derived/benthic_seqfractions/fseq_bottom_75yr.csv",
-                                 header = FALSE)
-fseq_bottom_100yr.raw <- read.csv("data/global_trawling/derived/benthic_seqfractions/fseq_bottom_100yr.csv",
-                                 header = FALSE)
-fseq_bottom_1000yr.raw <- read.csv("data/global_trawling/derived/benthic_seqfractions/fseq_bottom_1000yr.csv",
-                                  header = FALSE)
+fseq_bottom_multYears.raw <- readMat("data/global_trawling/derived/benthic_seqfractions/fseq_bottom_multyears.mat")
+fseq_bottom.multyears <- fseq_bottom_multYears.raw$fseq.bottom.multyears # clean up a bit
+fseq_bottom.multyears[fseq_bottom.multyears>=1] <- 1
+
+seqFracYears.raw <- read.csv(file = "data/global_trawling/derived/benthic_seqfractions/benthic_years.csv",
+                             header = FALSE)
+
+# load metadata
+
 fseq_bottom_depth_m.raw <- read.csv("data/global_trawling/derived/benthic_seqfractions/bottom_depth_m.csv",
                                  header = FALSE)
 fseq_bottom_lat_degN.raw <- read.csv("data/global_trawling/derived/benthic_seqfractions/lat_degN.csv",
@@ -86,6 +81,28 @@ Sala_CO2_efflux.df <- as.data.frame(Sala_CO2_efflux.raw, xy = FALSE)
 # # the R_MAX_VSIZE variable in .Renviron according to the directions here:
 # # https://stackoverflow.com/questions/51248293/error-vector-memory-exhausted-limit-reached-r-3-5-0-macos
 
+# load the year-by-year predicted global CO2 sediment remineralization rates from Sala et al.
+# (this is a static .csv version of the object "results," generated from the simple
+# model beginning on line 119 in
+# https://github.com/emlab-ucsb/ocean-conservation-priorities/blob/master/ancillary_analyses/timing_of_trawling_impacts.Rmd)
+
+Sala_et_al_trawlTiming_results.raw <- read.csv(file = "data/global_trawling/derived/sala_et_al_2021_model/Sala_et_al_trawlTiming_results.csv",
+                                               header = TRUE) 
+
+colnames(Sala_et_al_trawlTiming_results.raw)[1] <- c("Year")
+
+# since the underlying Sala et al. dataset is very sparse, can create a subset
+# and run our functions on just that subset
+
+ind.nonZeroCO2 <- which(!is.na(Sala_CO2_efflux.df$co2_efflux))
+length(ind.nonZeroCO2)/length(Sala_CO2_efflux.df$co2_efflux) # values that aren't NA represent < 1% of the total dataset
+
+# need to define cell area per email from jmayorga@bren.ucsb.edu:
+# "the fluxes in the Geotiff are per km2, so please make sure to multiply times
+# the pixel’s area before summing up."
+
+SalaModel_cell_area <- 934.4789^2/1000000 # from https://github.com/emlab-ucsb/ocean-conservation-priorities/blob/master/data_prep/update_bottom_trawling_impact.Rmd
+
 # now, can find most appropriate (nearest) sequestration fraction for each point in the CO2 flux dataset
 
 # create data frames of the coordinates of the points in the two different datasets
@@ -99,6 +116,5 @@ colnames(Siegel_fseq.coords.df) <- c("x","y")
 # convert to eastings & westings rather than just eastings, for compatibility 
 Siegel_fseq.coords.df$x[Siegel_fseq.coords.df$x>180] <- Siegel_fseq.coords.df$x[Siegel_fseq.coords.df$x>180]-360
 
-# now have (more or less) apples to oranges; find best match for each point in
-# the CO2 flux dataset... picks up with 02_ConstrainCO2Flux_coordMatch.R, which 
-# is set up to perform some intensive calculations using an AWS ECS instance
+# continues onto 02_ConstrainCO2Flux_coordMatch.R, which is set up to perform
+# some intensive calculations using an AWS ECS instance
