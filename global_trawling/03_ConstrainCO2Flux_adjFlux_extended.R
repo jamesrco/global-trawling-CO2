@@ -41,7 +41,7 @@ library(R.matlab) # to read .mat file
 
 load("data/global_trawling/derived/output/coord.matches.RData")
 
-# generalized version of functions
+# define functions
 
 genEffluxFracs <- function(year){
   yearInd <- which(seqFracYears.raw==year)
