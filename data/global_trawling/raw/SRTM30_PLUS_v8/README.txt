@@ -1,0 +1,1 @@
+This GeoTIFF file was downloaded from https://nextcloud.eatlas.org.au/apps/sharealias/a/world_e-atlas-ucsd_srtm30-plus_v8-tif on August 5, 2022. The file contains version 8 of the SRTM30_PLUS Global Bathymetry and Elevation Digital Elevation Model, a 1 km-resolution DEM, described here: https://eatlas.org.au/data/uuid/80301676-97fb-4bdf-b06c-e961e5c0cb0b
