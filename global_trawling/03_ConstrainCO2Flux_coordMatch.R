@@ -110,8 +110,13 @@ Siegel_fseq.coords.dt.oceanOnly <- data.table(Siegel_fseq.coords.df.oceanOnly)
 
 dist1 <- function(a, b){
   dt <- data.table((Siegel_fseq.coords.dt.oceanOnly$x-a)^2+(Siegel_fseq.coords.dt.oceanOnly$y-b)^2)
-  return(which.min(dt$V1))}
-
+  bestmatch.ind <- which.min(dt$V1)
+  ind <- Siegel_fseq.coords.dt.oceanOnly$ind[bestmatch.ind]
+  x <- Siegel_fseq.coords.dt.oceanOnly$x[bestmatch.ind]
+  y <- Siegel_fseq.coords.dt.oceanOnly$y[bestmatch.ind]
+  return(list(ind, x, y))
+}
+  
 # find matches
 
 # # test with a subset first; with benchmarking
@@ -122,8 +127,8 @@ dist1 <- function(a, b){
 # 
 # time0 <- Sys.time()
 # 
-# coord.matches.test1 <- Sala_CO2_efflux.coords.nonZero.dt.sub[, j = list(Closest =  dist1(x, y)), by = 1:nrow(Sala_CO2_efflux.coords.nonZero.dt.sub)]
-
+# coord.matchesNonZero.test1 <- Sala_CO2_efflux.coords.nonZero.dt.sub[, j = dist1(x, y), by = 1:nrow(Sala_CO2_efflux.coords.nonZero.dt.sub)]
+# 
 # time1 <- Sys.time()
 # print(time1 - time0)
 
@@ -132,7 +137,7 @@ dist1 <- function(a, b){
 
 time0 <- Sys.time()
 
-coord.matchesNonZero <- Sala_CO2_efflux.coords.nonZero.dt[, j = list(Closest =  dist1(x, y)), by = 1:nrow(Sala_CO2_efflux.coords.nonZero.dt)]
+coord.matchesNonZero <- Sala_CO2_efflux.coords.nonZero.dt[, j = dist1(x, y), by = 1:nrow(Sala_CO2_efflux.coords.nonZero.dt)]
 
 time1 <- Sys.time()
 print(time1 - time0)
@@ -204,8 +209,9 @@ print(time1 - time0)
 # time1 <- Sys.time()
 # print(time1 - time0)
 
-# save output
+# assign names, save output
 
+colnames(coord.matchesNonZero) <- c("nrow","ind","x","y")
 save(coord.matchesNonZero, file = "data/global_trawling/derived/output/coord.matches.NonZero.RData")
 
 # now, we can do some depth matching; ultimate goal: find nearest modeled depth in
@@ -231,21 +237,39 @@ nonZeroValueDepths.coords.dt.rounded.char <- apply(nonZeroValueDepths.coords.dt.
 # reorder the bottom depth data to match the order of the efflux dataset
 nonZeroValueDepths.ordered <- Sala_CO2efflux_nonZeroValueDepths_adj[order(match(nonZeroValueDepths.coords.dt.rounded.char, Sala_CO2_efflux.coords.nonZero.dt.rounded.char)),]   
 
-# add the depths (and lat and long, and the index to the OCIM48 lat/long 
+# add the depths (and lats and longs, and the index to the OCIM48 lat/long 
 # while we're at it too) back into the Sala_CO2_efflux.df data frame
 
 Sala_CO2_efflux.df$bottom_depth <- rep(NA, nrow(Sala_CO2_efflux.df))
-Sala_CO2_efflux.df$x <- rep(NA, nrow(Sala_CO2_efflux.df))
-Sala_CO2_efflux.df$y <- rep(NA, nrow(Sala_CO2_efflux.df))
+Sala_CO2_efflux.df$Sala_x <- rep(NA, nrow(Sala_CO2_efflux.df))
+Sala_CO2_efflux.df$Sala_y <- rep(NA, nrow(Sala_CO2_efflux.df))
 Sala_CO2_efflux.df$Siegel_ind <- rep(NA, nrow(Sala_CO2_efflux.df))
+Sala_CO2_efflux.df$Siegel_x <- rep(NA, nrow(Sala_CO2_efflux.df))
+Sala_CO2_efflux.df$Siegel_y <- rep(NA, nrow(Sala_CO2_efflux.df))
 
 Sala_CO2_efflux.df$bottom_depth[ind.nonZeroCO2] = nonZeroValueDepths.ordered$rvalue_1
-Sala_CO2_efflux.df$x[ind.nonZeroCO2] <- Sala_CO2_efflux.coords.nonZero.dt$x
-Sala_CO2_efflux.df$y[ind.nonZeroCO2] <- Sala_CO2_efflux.coords.nonZero.dt$y
-Sala_CO2_efflux.df$Siegel_ind[ind.nonZeroCO2] <- coord.matchesNonZero$Closest
+Sala_CO2_efflux.df$Sala_x[ind.nonZeroCO2] <- Sala_CO2_efflux.coords.nonZero.dt$x
+Sala_CO2_efflux.df$Sala_y[ind.nonZeroCO2] <- Sala_CO2_efflux.coords.nonZero.dt$y
+Sala_CO2_efflux.df$Siegel_ind[ind.nonZeroCO2] <- coord.matchesNonZero$ind
 
-# save this object so we can reimport it in MATLAB
-write.csv2(Sala_CO2_efflux.df, "data/global_trawling/derived/output/Sala_CO2_efflux.df")
+Siegel_fseq.coords.dt.oceanOnly$x[Siegel_fseq.coords.dt.oceanOnly$ind[i]==coord.matchesNonZero$ind]
+
+Siegel_fseq.coords.dt.oceanOnly$ind[i] %in% coord.matchesNonZero$[coord.matchesNonZero$ind==10]
+
+Sala_CO2_efflux.df.nonZeroCO2 <- Sala_CO2_efflux.df[ind.nonZeroCO2,]
+
+Siegel_fseq.coords.dt.oceanOnly$y[Sala_CO2_efflux.df.nonZeroCO2$Siegel_ind %in% Siegel_fseq.coords.dt.oceanOnly$ind]
+
+Sala_CO2_efflux.df.nonZeroCO2$Siegel_ind
+
+Sala_CO2_efflux.df$Siegel_x[ind.nonZeroCO2] <- 
+Sala_CO2_efflux.df$Siegel_y[ind.nonZeroCO2] <- 
+
+
+# save this object so we can reimport it in MATLAB; will just save a matrix
+# containing values for the non-zero data points
+write.csv(Sala_CO2_efflux.df[ind.nonZeroCO2,], "data/global_trawling/derived/output/Sala_CO2_efflux_nonZero.csv",
+          row.names = FALSE)
 
 system(paste0("ssmtp -v jcollins2139@gmail.com < ~/zoonotic-C/aws_provisioning/ssmtp/notification_email.txt"))
 

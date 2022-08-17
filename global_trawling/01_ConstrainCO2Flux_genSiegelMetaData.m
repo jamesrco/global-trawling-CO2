@@ -3,6 +3,10 @@
 % plot_sequestration_fraction.m provided by Siegel et al. at
 %  https://doi.org/10.6084/m9.figshare.15228690.v2
 
+% this script collects and writes some metadata from the model output
+% provided by Siegel et al., which we'll need in the R script
+% '02_ConstrainCO2Flux_IO.R' and beyond
+
 % Note: Assumes user has loaded "fseq_OCIM2_48L.mat" into memory 
 
 % variables are as follows
@@ -28,11 +32,6 @@
 % 8. time = 1-d array of time (in years) since injection of CO2; range from
 % 0-1000 years
 
-% ------------------------------------------------------------------------
-% first, write some metadata we'll need in the R script
-% '02_ConstrainCO2Flux_IO.R' and beyond
-% ------------------------------------------------------------------------
-
 % find the bottom depth
 bottom_depth = sum(VOL.*MASK,3)./AREA(:,:,1); % depth of the ocean at each water column
 
@@ -47,6 +46,6 @@ writematrix(LAT(:,1,1),'/Users/jamesrco/Code/global-trawling-CO2/data/global_tra
 writematrix(LON(1,:,1),'/Users/jamesrco/Code/global-trawling-CO2/data/global_trawling/derived/benthic_seqfractions/long_degE.csv')
 writematrix(bottom_depth,'/Users/jamesrco/Code/global-trawling-CO2/data/global_trawling/derived/benthic_seqfractions/bottom_depth_m.csv')
 
-% % save .csv file containing the seq fractions
+% % save .csv file containing all the seq fractions
 % 
 % writematrix(fseq,'/Users/jamesrco/Code/global-trawling-CO2/data/global_trawling/derived/benthic_seqfractions/fseq_all.csv')
