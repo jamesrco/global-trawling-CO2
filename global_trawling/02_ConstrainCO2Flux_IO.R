@@ -141,7 +141,7 @@ Sala_CO2_efflux.coords <- xyFromCell(Sala_CO2_efflux.raw,c(1:length(Sala_CO2_eff
 Sala_CO2_efflux.coords.nonZero <- Sala_CO2_efflux.coords[ind.nonZeroCO2,]
 
 # sequestration fractions
-Siegel_fseq.coords.df <- data.frame(as.numeric(rep(fseq_long_degE.raw[1,],91)),rep(fseq_lat_degN.raw[,1],180))
+Siegel_fseq.coords.df <- data.frame(as.vector(apply(fseq_long_degE.raw,2,rep,91)),rep(fseq_lat_degN.raw[,1],180))
 colnames(Siegel_fseq.coords.df) <- c("x","y")
 # convert to eastings & westings rather than just eastings, for compatibility 
 Siegel_fseq.coords.df$x[Siegel_fseq.coords.df$x>180] <- Siegel_fseq.coords.df$x[Siegel_fseq.coords.df$x>180]-360
