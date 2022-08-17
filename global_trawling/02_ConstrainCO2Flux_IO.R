@@ -127,9 +127,9 @@ plot(effluxEstHist_mass,
 
 axis(2, at = seq(0,1,0.2))
 
-sum(sums[34])/sum(sums, na.rm = T) # % total CO2 efflux (by mass) in 0-100 m depth bin
-sum(sums[33:34])/sum(sums, na.rm = T) # % total CO2 efflux (by mass) in 0-200 m depth bin
-sum(sums[1:32], na.rm = T)/sum(sums, na.rm = T) # % total CO2 efflux (by mass) originating in water depths > 200 m
+sum(sums_PgCO2[34])/sum(sums_PgCO2, na.rm = T) # % total CO2 efflux (by mass) in 0-100 m depth bin
+sum(sums_PgCO2[33:34])/sum(sums_PgCO2, na.rm = T) # % total CO2 efflux (by mass) in 0-200 m depth bin
+sum(sums_PgCO2[1:32], na.rm = T)/sum(sums_PgCO2, na.rm = T) # % total CO2 efflux (by mass) originating in water depths > 200 m
 
 # now, can find most appropriate (nearest) sequestration fraction for each point in the CO2 flux dataset
 
