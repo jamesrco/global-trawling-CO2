@@ -251,20 +251,8 @@ Sala_CO2_efflux.df$bottom_depth[ind.nonZeroCO2] = nonZeroValueDepths.ordered$rva
 Sala_CO2_efflux.df$Sala_x[ind.nonZeroCO2] <- Sala_CO2_efflux.coords.nonZero.dt$x
 Sala_CO2_efflux.df$Sala_y[ind.nonZeroCO2] <- Sala_CO2_efflux.coords.nonZero.dt$y
 Sala_CO2_efflux.df$Siegel_ind[ind.nonZeroCO2] <- coord.matchesNonZero$ind
-
-Siegel_fseq.coords.dt.oceanOnly$x[Siegel_fseq.coords.dt.oceanOnly$ind[i]==coord.matchesNonZero$ind]
-
-Siegel_fseq.coords.dt.oceanOnly$ind[i] %in% coord.matchesNonZero$[coord.matchesNonZero$ind==10]
-
-Sala_CO2_efflux.df.nonZeroCO2 <- Sala_CO2_efflux.df[ind.nonZeroCO2,]
-
-Siegel_fseq.coords.dt.oceanOnly$y[Sala_CO2_efflux.df.nonZeroCO2$Siegel_ind %in% Siegel_fseq.coords.dt.oceanOnly$ind]
-
-Sala_CO2_efflux.df.nonZeroCO2$Siegel_ind
-
-Sala_CO2_efflux.df$Siegel_x[ind.nonZeroCO2] <- 
-Sala_CO2_efflux.df$Siegel_y[ind.nonZeroCO2] <- 
-
+Sala_CO2_efflux.df$Siegel_x[ind.nonZeroCO2] <- coord.matchesNonZero$x
+Sala_CO2_efflux.df$Siegel_y[ind.nonZeroCO2] <- coord.matchesNonZero$y
 
 # save this object so we can reimport it in MATLAB; will just save a matrix
 # containing values for the non-zero data points
