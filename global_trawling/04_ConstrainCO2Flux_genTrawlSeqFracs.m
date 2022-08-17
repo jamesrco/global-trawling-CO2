@@ -64,32 +64,34 @@ Sala_CO2_efflux_nonZero_raw = csvread('/Users/jamesrco/Code/global-trawling-CO2/
 % after 1-200 (inclusive) years, plus years 300, 400, ... 900, 1000
 fseq_bottom_multyears = zeros([size(Sala_CO2_efflux_nonZero_raw,1), 208]);
 years = [1:200 300 400 500 600 700 800 900 1000];
+% return indices for the times we want
+[tf,idx_time] = ismember(years,time)
 
-for i = 1:length(years)
-    [ny,nx,nz] = size(MASK);
-    FSEQ_thisyr = 0*MASK+NaN;
-    t_indx = find(time==years(i)); % find the index of the i'th year
-    FSEQ_thisyr(MASK==1) = fseq(:,t_indx);
-    % now find the right OCIM48 grid cell for a given Sala data point j
-    for j = 1:size(Sala_CO2_efflux_nonZero_raw,1)
-        xy_idx = Sala_CO2_efflux_nonZero_raw(j,5)
-        
-    % now find the near-bottom ocean grid cells
-    fseq_bottom_thisyr = 0*MASK(:,:,1)+NaN;
-    TOPO = sum(MASK,3); % number of grid cells in the vertical direction
-    for j = 1:ny
-        for k = 1:nx
-            if TOPO(j,k)~=0
-                fseq_bottom_thisyr(j,k) = FSEQ_thisyr(j,k,TOPO(j,k));
-            end
-        end
+for i = 1:size(Sala_CO2_efflux_nonZero_raw,1)
+    %  first, find the right OCIM48 grid cell index for a given Sala data point j
+    lat = Sala_CO2_efflux_nonZero_raw(i,4); % degrees north
+    lon = Sala_CO2_efflux_nonZero_raw(i,3);
+    % this will be in eastings & westings, so will have to check and
+    % reconvert to degrees east, from 0 - 360, if necessary
+    if lon < 0
+        lon = lon+360;
     end
-    (:,:,i) = fseq_bottom_thisyr;
+    bottomDepth = -Sala_CO2_efflux_nonZero_raw(i,2);
+    % the following code will find the nearest model grid cell(s)
+%     iy = find(abs(LAT(:)-lat)==min(abs(LAT(:)-lat)));
+%     ix = find(abs(LON(:)-lon)==min(abs(LON(:)-lon)));
+%     iz = find(abs(DEPTH(:)-bottomDepth)==min(abs(DEPTH(:)-bottomDepth)));
+%     indx = intersect(intersect(ix,iy),iz);
+    iy2 = find(abs(LAT(MASK==1)-lat)==min(abs(LAT(MASK==1)-lat)));
+    ix2 = find(abs(LON(MASK==1)-lon)==min(abs(LON(MASK==1)-lon)));
+    iz2 = find(abs(DEPTH(MASK==1)-bottomDepth)==min(abs(DEPTH(MASK==1)-bottomDepth)));
+    indx2 = intersect(intersect(ix2,iy2),iz2);
+    this_fseq = fseq(indx2,:); % return the sequestration fractions for this index
+    fseq_bottom_multyears(i,:) = this_fseq(idx_time); % store
 end
 
-
-% export the individual year arrays as .csv; multiple year array of
-% matrixes .mat file
+% export this array of as .mat file; a matrix containing the years for
+% which we retrieved data as .csv
 
 writematrix(years,'/Users/jamesrco/Code/global-trawling-CO2/data/global_trawling/derived/benthic_seqfractions/trawlYears.csv')
 save('/Users/jamesrco/Code/global-trawling-CO2/data/global_trawling/derived/benthic_seqfractions/fseq_bottom_multyears.mat','fseq_bottom_multyears')
@@ -118,8 +120,8 @@ save('/Users/jamesrco/Code/global-trawling-CO2/data/global_trawling/derived/bent
 % Example 2: Find a particular point in the ocean and plot the fraction
 % remaining sequestered over time
 % first specify a location by latitude, longitude, and depth
-lat = -40; % degrees north
-lon = 7; % degrees east, from 0 - 360
+lat = 83.0769; % degrees north
+lon = 333; % degrees east, from 0 - 360
 depth = 1000; % meters
 % the following code will find the nearest model grid cell(s)
 iy = find(abs(LAT(:)-lat)==min(abs(LAT(:)-lat)));
