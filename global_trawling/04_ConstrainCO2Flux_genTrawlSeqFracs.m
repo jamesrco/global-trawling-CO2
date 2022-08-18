@@ -58,43 +58,64 @@ Sala_CO2_efflux_nonZero_raw = csvread('/Users/jamesrco/Code/global-trawling-CO2/
 %   end
 % end
 
-% make a 3-d array of the fractions sequestered at the bottom depth at the
-% best-fit location for each non-zero value in the Sala et al dataset
+% objective: make matrix of the fractions sequestered at the ~ bottom depth
+% at the best-fit location for each non-zero value in the Sala et al dataset
 
-% after 1-200 (inclusive) years, plus years 300, 400, ... 900, 1000
+% timescale: after 1-200 (inclusive) years, plus years 300, 400, ... 900, 1000
 fseq_bottom_multyears = zeros([size(Sala_CO2_efflux_nonZero_raw,1), 208]);
 years = [1:200 300 400 500 600 700 800 900 1000];
 % return indices for the times we want
-[tf,idx_time] = ismember(years,time)
+[tf,idx_time] = ismember(years,time);
 
 for i = 1:size(Sala_CO2_efflux_nonZero_raw,1)
-    %  first, find the right OCIM48 grid cell index for a given Sala data point j
-    lat = Sala_CO2_efflux_nonZero_raw(i,4); % degrees north
-    lon = Sala_CO2_efflux_nonZero_raw(i,3);
+    lat = Sala_CO2_efflux_nonZero_raw(i,7); % degrees north
+    lon = Sala_CO2_efflux_nonZero_raw(i,6);
+    globalInd = Sala_CO2_efflux_nonZero_raw(i,5);
     % this will be in eastings & westings, so will have to check and
     % reconvert to degrees east, from 0 - 360, if necessary
     if lon < 0
         lon = lon+360;
     end
     bottomDepth = -Sala_CO2_efflux_nonZero_raw(i,2);
-    % the following code will find the nearest model grid cell(s)
-%     iy = find(abs(LAT(:)-lat)==min(abs(LAT(:)-lat)));
-%     ix = find(abs(LON(:)-lon)==min(abs(LON(:)-lon)));
-%     iz = find(abs(DEPTH(:)-bottomDepth)==min(abs(DEPTH(:)-bottomDepth)));
-%     indx = intersect(intersect(ix,iy),iz);
-    iy2 = find(abs(LAT(MASK==1)-lat)==min(abs(LAT(MASK==1)-lat)));
-    ix2 = find(abs(LON(MASK==1)-lon)==min(abs(LON(MASK==1)-lon)));
-    iz2 = find(abs(DEPTH(MASK==1)-bottomDepth)==min(abs(DEPTH(MASK==1)-bottomDepth)));
-    indx2 = intersect(intersect(ix2,iy2),iz2);
-    this_fseq = fseq(indx2,:); % return the sequestration fractions for this index
-    fseq_bottom_multyears(i,:) = this_fseq(idx_time); % store
+    % now find the right OCIM48 grid cell indices (all depths) for a 
+    % given Sala data point j
+    % find the equivalent 2-D index, adjusted for the mask
+    % generate indices to fseq to all depths for this point location
+    fseq_ind_thislocation = NaN(size(MASK,3),1);
+    masks_thislocation = MASK(globalInd:91*180:globalInd+91*180*47);
+    for j = 1:size(fseq_ind_thislocation)
+        if masks_thislocation(j)~=1
+            break
+        end
+        fseq_ind_thislocation(j) = sum(MASK(1:((globalInd+(j-1)*(91*180)))));
+    end
+    % now, find the closest depth at this point for which there is model
+    % output
+    [~,r]=sort(abs(bottomDepth-squeeze(DEPTH(1,1,:))),'ascend');
+    ranked_fseqs = fseq_ind_thislocation(r);
+    ranked_fseqs_noNaN = ranked_fseqs(~isnan(ranked_fseqs));
+    fseq_thislocation = fseq(ranked_fseqs_noNaN(1),idx_time);
+    fseq_bottom_multyears(i,:) = fseq_thislocation;
 end
 
-% export this array of as .mat file; a matrix containing the years for
-% which we retrieved data as .csv
+% export the fseq_bottom_multyears array as a series of .mat files; also export a
+% matrix containing the years for which we retrieved data as .csv
 
 writematrix(years,'/Users/jamesrco/Code/global-trawling-CO2/data/global_trawling/derived/benthic_seqfractions/trawlYears.csv')
-save('/Users/jamesrco/Code/global-trawling-CO2/data/global_trawling/derived/benthic_seqfractions/fseq_bottom_multyears.mat','fseq_bottom_multyears')
+
+split_ind = round([1:size(fseq_bottom_multyears,1)/7:size(fseq_bottom_multyears,1)]);
+fseq_bottom_multyears_1of6 = fseq_bottom_multyears(split_ind(1):split_ind(2),:);
+fseq_bottom_multyears_2of6 = fseq_bottom_multyears(split_ind(2)+1:split_ind(3),:);
+fseq_bottom_multyears_3of6 = fseq_bottom_multyears(split_ind(3)+1:split_ind(4),:);
+fseq_bottom_multyears_4of6 = fseq_bottom_multyears(split_ind(4)+1:split_ind(5),:);
+fseq_bottom_multyears_5of6 = fseq_bottom_multyears(split_ind(5)+1:split_ind(6),:);
+fseq_bottom_multyears_6of6 = fseq_bottom_multyears(split_ind(6)+1:split_ind(7),:);
+save('/Users/jamesrco/Code/global-trawling-CO2/data/global_trawling/derived/benthic_seqfractions/fseq_bottom_multyears_1of6.mat','fseq_bottom_multyears_1of6')
+save('/Users/jamesrco/Code/global-trawling-CO2/data/global_trawling/derived/benthic_seqfractions/fseq_bottom_multyears_2of6.mat','fseq_bottom_multyears_2of6')
+save('/Users/jamesrco/Code/global-trawling-CO2/data/global_trawling/derived/benthic_seqfractions/fseq_bottom_multyears_3of6.mat','fseq_bottom_multyears_3of6')
+save('/Users/jamesrco/Code/global-trawling-CO2/data/global_trawling/derived/benthic_seqfractions/fseq_bottom_multyears_4of6.mat','fseq_bottom_multyears_4of6')
+save('/Users/jamesrco/Code/global-trawling-CO2/data/global_trawling/derived/benthic_seqfractions/fseq_bottom_multyears_5of6.mat','fseq_bottom_multyears_5of6')
+save('/Users/jamesrco/Code/global-trawling-CO2/data/global_trawling/derived/benthic_seqfractions/fseq_bottom_multyears_6of6.mat','fseq_bottom_multyears_6of6')
 
 % % plot both the fraction remaining after 100 years and the bottom depth
 % figure(1)

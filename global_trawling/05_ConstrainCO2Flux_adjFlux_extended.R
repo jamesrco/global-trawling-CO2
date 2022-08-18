@@ -34,10 +34,20 @@ library(R.matlab) # to read .mat file
 # Siegel et al dataset
 
 # if not already loaded, load in the file containing the coordinate matches,
-# generated in previous script 02_ConstrainCO2Flux_coordMatch.R and saved to 
+# generated in previous script 03_ConstrainCO2Flux_coordMatch.R and saved to 
 # global-trawling-CO2/data/global_trawling/derived/output/
 
-load("data/global_trawling/derived/output/coord.matches.RData")
+load("data/global_trawling/derived/output/coord.matches.NonZero.RData")
+
+# load the applicable sequestration fractions, generated in 04_ConstrainCO2Flux_genTrawlSeqFracs.m
+# also load the years for which fractions were generated
+
+fseq_bottom_multYears.raw <- readMat("data/global_trawling/derived/benthic_seqfractions/fseq_bottom_multyears.mat")
+fseq_bottom.multyears <- fseq_bottom_multYears.raw$fseq.bottom.multyears # clean up a bit
+fseq_bottom.multyears[fseq_bottom.multyears>=1] <- 1
+
+seqFracYears.raw <- read.csv(file = "data/global_trawling/derived/benthic_seqfractions/benthic_years.csv",
+                             header = FALSE)
 
 # define functions
 
