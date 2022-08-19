@@ -11,7 +11,7 @@
 # the atmosphere for a variety of time horizons), but for specific
 # exclusive economic zones (EEZs)
 
-# *** Assumes user has already run other four scripts in this series, and that
+# *** Assumes user has already run the previous scripts in this series, and that
 # the R objects generated using those scripts are in the environment already
 
 # set the working directory

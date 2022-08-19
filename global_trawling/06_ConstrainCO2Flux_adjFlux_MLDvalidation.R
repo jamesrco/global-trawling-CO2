@@ -5,11 +5,12 @@
 # Siegel et al. 2021
 # Author: Jamie Collins, jcollins@edf.org
 
-# This fifth script performs the actual adjustment of the Sala et al
-# benthic CO2 flux data and includes time-integrated estimates of total
-# global emissions to the atmosphere for a variety of time horizons
+# This sixth script performs a simple validation of the primary approach to
+# adjustment of the Sala fluxes using the Siegel et al. model output: Does 
+# the adjusted estimate in year one agree with a simple estimate based on
+# mixed layer depth
 
-# *** Assumes user has already run other four scripts in this series, and that
+# *** Assumes user has already run the previous scripts in this series, and that
 # the R objects generated using those scripts are in the environment already
 
 # set the working directory

@@ -9,7 +9,7 @@
 # benthic CO2 flux data and includes time-integrated estimates of total
 # global emissions to the atmosphere for a variety of time horizons
 
-# *** Assumes user has already run other four scripts in this series, and that
+# *** Assumes user has already run the previous scripts in this series, and that
 # the R objects generated using those scripts are in the environment already
 
 # set the working directory
