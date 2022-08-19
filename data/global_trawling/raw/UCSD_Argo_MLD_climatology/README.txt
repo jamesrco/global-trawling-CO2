@@ -1,0 +1,3 @@
+This .mat was downloaded from http://mixedlayer.ucsd.edu/data/Argo_mixedlayers_monthlyclim_04142022.mat on August 19, 2022. The file contains the April 2022 version of a monthly MLD climatology dataset derived from Argo float profiles. The citation is: 
+Holte, J., L. D. Talley, J. Gilson, and D. Roemmich (2017), An Argo mixed layer climatology and database, Geophys. Res. Lett., 44, 5618–5626, doi:10.1002/2017GL073426.
+The http://mixedlayer.ucsd.edu site contains some good background and description.

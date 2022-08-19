@@ -30,6 +30,13 @@ library(data.table) # needs to be installed first
 library(parallel) # part of base; doesn't need to be installed
 library(R.matlab) # to read .mat file
 
+# load in MLD data
+# using the Holte, Talley, et al., Argo-derived MLD climatology dataset, here:
+# http://mixedlayer.ucsd.edu/data/Argo_mixedlayers_monthlyclim_04142022.mat
+
+fseq_bottom_multYears_1of7.raw <- readMat("data/global_trawling/derived/benthic_seqfractions/fseq_bottom_multyears_1of7.mat")
+
+
 # we are ready at this point to adjust the fluxes in the Sala et al dataset
 # using the appropriate (nearest match) benthic sequestration fractions in the
 # Siegel et al dataset
