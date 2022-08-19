@@ -40,27 +40,47 @@ library(R.matlab) # to read .mat file
 load("data/global_trawling/derived/output/coord.matches.NonZero.RData")
 
 # load the applicable sequestration fractions, generated in 04_ConstrainCO2Flux_genTrawlSeqFracs.m
+# these are segmented so will need to be stitched together
 # also load the years for which fractions were generated
 
-fseq_bottom_multYears.raw <- readMat("data/global_trawling/derived/benthic_seqfractions/fseq_bottom_multyears.mat")
-fseq_bottom.multyears <- fseq_bottom_multYears.raw$fseq.bottom.multyears # clean up a bit
+fseq_bottom_multYears_1of7.raw <- readMat("data/global_trawling/derived/benthic_seqfractions/fseq_bottom_multyears_1of7.mat")
+fseq_bottom_multYears_2of7.raw <- readMat("data/global_trawling/derived/benthic_seqfractions/fseq_bottom_multyears_2of7.mat")
+fseq_bottom_multYears_3of7.raw <- readMat("data/global_trawling/derived/benthic_seqfractions/fseq_bottom_multyears_3of7.mat")
+fseq_bottom_multYears_4of7.raw <- readMat("data/global_trawling/derived/benthic_seqfractions/fseq_bottom_multyears_4of7.mat")
+fseq_bottom_multYears_5of7.raw <- readMat("data/global_trawling/derived/benthic_seqfractions/fseq_bottom_multyears_5of7.mat")
+fseq_bottom_multYears_6of7.raw <- readMat("data/global_trawling/derived/benthic_seqfractions/fseq_bottom_multyears_6of7.mat")
+fseq_bottom_multYears_7of7.raw <- readMat("data/global_trawling/derived/benthic_seqfractions/fseq_bottom_multyears_7of7.mat")
+
+fseq_bottom_multYears.raw <- rbind(fseq_bottom_multYears_1of7.raw$fseq.bottom.multyears.1of7,
+                                   fseq_bottom_multYears_2of7.raw$fseq.bottom.multyears.2of7,
+                                   fseq_bottom_multYears_3of7.raw$fseq.bottom.multyears.3of7,
+                                   fseq_bottom_multYears_4of7.raw$fseq.bottom.multyears.4of7,
+                                   fseq_bottom_multYears_5of7.raw$fseq.bottom.multyears.5of7,
+                                   fseq_bottom_multYears_6of7.raw$fseq.bottom.multyears.6of7,
+                                   fseq_bottom_multYears_7of7.raw$fseq.bottom.multyears.7of7)
+
+rm(fseq_bottom_multYears_1of7.raw,
+   fseq_bottom_multYears_2of7.raw,
+   fseq_bottom_multYears_3of7.raw,
+   fseq_bottom_multYears_4of7.raw,
+   fseq_bottom_multYears_5of7.raw,
+   fseq_bottom_multYears_6of7.raw,
+   fseq_bottom_multYears_7of7.raw)
+
+fseq_bottom.multyears <- fseq_bottom_multYears.raw
+
 fseq_bottom.multyears[fseq_bottom.multyears>=1] <- 1
 
-seqFracYears.raw <- read.csv(file = "data/global_trawling/derived/benthic_seqfractions/benthic_years.csv",
+seqFracYears.raw <- read.csv(file = "data/global_trawling/derived/benthic_seqfractions/trawlYears.csv",
                              header = FALSE)
 
 # define functions
 
 genEffluxFracs <- function(year){
   yearInd <- which(seqFracYears.raw==year)
-  fseq_bottom.thisyear <- fseq_bottom.multyears[,,yearInd]
+  fseq_bottom.thisyear <- fseq_bottom.multyears[,yearInd]
   effluxFrac_bottom.thisyear <- 1-as.numeric(unlist(fseq_bottom.thisyear))
   return(effluxFrac_bottom.thisyear)
-}
-
-constrainFlux <- function(dataIndex, effluxFracs){
-  adjFlux <- Sala_CO2_efflux.df$co2_efflux[dataIndex]*effluxFracs[coord.matches$Closest[dataIndex]]
-  return(adjFlux)
 }
 
 # run the calculations
@@ -72,26 +92,36 @@ constrainFlux <- function(dataIndex, effluxFracs){
 
 predicted.PgCO2_per_year_to_atmos <- as.data.frame(matrix(data = NA, 
                                                           nrow = length(seqFracYears.raw),
-                                                          ncol = 2))
+                                                          ncol = 5))
 colnames(predicted.PgCO2_per_year_to_atmos) = c("Year",
-                                                "PgCO2_per_year_to_atmos_global")
+                                                "PgCO2_per_year_to_atmos_global_all_depths",
+                                                "PgCO2_per_year_to_atmos_global_200m_less",
+                                                "PgCO2_per_year_to_atmos_global_200m_greater",
+                                                "PgCO2_per_year_to_atmos_global_400m_greater")
 predicted.PgCO2_per_year_to_atmos[,1] <- unlist(seqFracYears.raw)
 
 # iterate
 
 for (i in 1:nrow(predicted.PgCO2_per_year_to_atmos)) {
 
-  print(predicted.PgCO2_per_year_to_atmos[i,1])
+#  print(predicted.PgCO2_per_year_to_atmos[i,1])
   
-  time0 <- Sys.time()
+#  time0 <- Sys.time()
   
   thisYear <- predicted.PgCO2_per_year_to_atmos[i,1]
   EffluxFracs.thisyear <- genEffluxFracs(thisYear)
-  adjCO2efflux.thisyear <- unlist(lapply(ind.nonZeroCO2, constrainFlux, EffluxFracs.thisyear))
-  predicted.PgCO2_per_year_to_atmos[i,2] <- sum(adjCO2efflux.thisyear*SalaModel_cell_area, na.rm=T)*(1/10^9)
+  adjCO2efflux.thisyear <- EffluxFracs.thisyear*Sala_CO2_efflux.df.nonZeroCO2$co2_efflux
+  predicted.PgCO2_per_year_to_atmos[i,2] <- 
+    sum(adjCO2efflux.thisyear*SalaModel_cell_area, na.rm=T)*(1/10^9)
+  predicted.PgCO2_per_year_to_atmos[i,3] <- 
+    sum(adjCO2efflux.thisyear[Sala_CO2_efflux.df.nonZeroCO2$bottom_depth>=-200]*SalaModel_cell_area, na.rm=T)*(1/10^9)
+  predicted.PgCO2_per_year_to_atmos[i,4] <- 
+    sum(adjCO2efflux.thisyear[which(Sala_CO2_efflux.df.nonZeroCO2$bottom_depth < -200)]*SalaModel_cell_area, na.rm=T)*(1/10^9)
+  predicted.PgCO2_per_year_to_atmos[i,5] <- 
+    sum(adjCO2efflux.thisyear[which(Sala_CO2_efflux.df.nonZeroCO2$bottom_depth < -400)]*SalaModel_cell_area, na.rm=T)*(1/10^9)
   
-  time1 <- Sys.time()
-  print(time1 - time0)
+#  time1 <- Sys.time()
+#  print(time1 - time0)
   
 }
 
@@ -116,27 +146,61 @@ write.csv(predicted.PgCO2_per_year_to_atmos, file = "data/global_trawling/derive
 
 adjCO2efflux_PgCO2_cumulative <- as.data.frame(matrix(data = NA, 
                                                           nrow = 200,
-                                                          ncol = 2))
+                                                          ncol = 6))
 colnames(adjCO2efflux_PgCO2_cumulative) = c("Year",
-                                            "PgCO2_to_atmos_cumulative_global")
+                                            "PgCO2_to_atmos_cumulative_global_alldepths",
+                                            "PgCO2_to_atmos_cumulative_global_200m_less",
+                                            "PgCO2_to_atmos_cumulative_global_200m_greater",
+                                            "PgCO2_to_atmos_cumulative_global_alldepths_unadjusted",
+                                            "PgCO2_to_atmos_cumulative_global_200m_greater_unadjusted")
 adjCO2efflux_PgCO2_cumulative[,1] <- unlist(seqFracYears.raw)[1:200]
 
 for (i in 1:nrow(adjCO2efflux_PgCO2_cumulative)) {
   
-  adjCO2efflux_PgCO2_cumulative[i,2] <- 
+  adjCO2efflux_PgCO2_cumulative[i,2] <-
     sum(rev(predicted.PgCO2_per_year_to_atmos[1:i,2])*
           (Sala_et_al_trawlTiming_results.raw$C_remin[1:i]/
              Sala_et_al_trawlTiming_results.raw$C_remin[1]))
-  
-}
+  adjCO2efflux_PgCO2_cumulative[i,3] <- 
+    sum(rev(predicted.PgCO2_per_year_to_atmos[1:i,3])*
+          (Sala_et_al_trawlTiming_results.raw$C_remin[1:i]/
+             Sala_et_al_trawlTiming_results.raw$C_remin[1]))
+  adjCO2efflux_PgCO2_cumulative[i,4] <- 
+    sum(rev(predicted.PgCO2_per_year_to_atmos[1:i,4])*
+          (Sala_et_al_trawlTiming_results.raw$C_remin[1:i]/
+             Sala_et_al_trawlTiming_results.raw$C_remin[1]))
+  adjCO2efflux_PgCO2_cumulative[i,5] <- 
+    sum(Sala_et_al_trawlTiming_results.raw$C_remin[1]*(1/10^9)*(44/12)*
+          (Sala_et_al_trawlTiming_results.raw$C_remin[1:i]/
+             Sala_et_al_trawlTiming_results.raw$C_remin[1]))
+  adjCO2efflux_PgCO2_cumulative[i,6] <- 
+    sum(predicted.PgCO2_per_year_to_atmos[nrow(predicted.PgCO2_per_year_to_atmos),4]*
+          (Sala_et_al_trawlTiming_results.raw$C_remin[1:i]/
+             Sala_et_al_trawlTiming_results.raw$C_remin[1]))
+  }
 
 write.csv(adjCO2efflux_PgCO2_cumulative, file = "data/global_trawling/derived/output/adjCO2efflux_global_PgCO2_cumulative.csv",
           row.names = FALSE)
 
-plot(adjCO2efflux_PgCO2_cumulative$Year, adjCO2efflux_PgCO2_cumulative$PgCO2_to_atmos_cumulative,
+plot(adjCO2efflux_PgCO2_cumulative$Year, adjCO2efflux_PgCO2_cumulative$PgCO2_to_atmos_cumulative_global_alldepths,
      type = "l", col = "black", lwd = 1, xlab="Year", 
-     ylab = expression(paste("Pg CO"["2"]," emitted to atmosphere from global benthic trawling activity (cumulative)")))
+     ylab = expression(paste("Pg CO"["2"]," emitted to atmosphere from global benthic trawling activity (cumulative, all depths)")))
 
+plot(adjCO2efflux_PgCO2_cumulative$Year, adjCO2efflux_PgCO2_cumulative$PgCO2_to_atmos_cumulative_global_200m_less,
+     type = "l", col = "black", lwd = 1, xlab="Year", 
+     ylab = expression(paste("Pg CO"["2"]," emitted to atmosphere from global benthic trawling activity (cumulative, depths < 200 m)")))
+
+plot(adjCO2efflux_PgCO2_cumulative$Year, adjCO2efflux_PgCO2_cumulative$PgCO2_to_atmos_cumulative_global_200m_greater,
+     type = "l", col = "black", lwd = 1, xlab="Year", xlim = c(0,30), ylim = c(0,3.3e-8), 
+     ylab = expression(paste("Pg CO"["2"]," emitted to atmosphere from global benthic trawling activity (cumulative, depths > 200 m)")))
+lines(adjCO2efflux_PgCO2_cumulative$Year, adjCO2efflux_PgCO2_cumulative$PgCO2_to_atmos_cumulative_global_200m_greater_unadjusted,
+      col = "red", lwd = 1)
+
+plot(adjCO2efflux_PgCO2_cumulative$Year, adjCO2efflux_PgCO2_cumulative$PgCO2_to_atmos_cumulative_global_alldepths_unadjusted,
+     type = "l", col = "red", lwd = 1, xlab="Year", xlim = c(0,30), ylim = c(0,20),
+     ylab = expression(paste("Pg CO"["2"]," emitted to atmosphere from global benthic trawling activity (unadjusted)")))
+lines(adjCO2efflux_PgCO2_cumulative$Year, adjCO2efflux_PgCO2_cumulative$PgCO2_to_atmos_cumulative_global_alldepths,
+      col = "black", lwd = 1)
 # after 100 y of continuous trawling, a cumulative 1.27 Pg CO2 will have reached the atmosphere 
 # after 200 y of continuous trawling, a cumulative 3.95 Pg CO2 will have reached the atmosphere 
 

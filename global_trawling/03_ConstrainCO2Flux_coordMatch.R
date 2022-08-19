@@ -247,16 +247,18 @@ Sala_CO2_efflux.df$Siegel_ind <- rep(NA, nrow(Sala_CO2_efflux.df))
 Sala_CO2_efflux.df$Siegel_x <- rep(NA, nrow(Sala_CO2_efflux.df))
 Sala_CO2_efflux.df$Siegel_y <- rep(NA, nrow(Sala_CO2_efflux.df))
 
-Sala_CO2_efflux.df$bottom_depth[ind.nonZeroCO2] = nonZeroValueDepths.ordered$rvalue_1
+Sala_CO2_efflux.df$bottom_depth[ind.nonZeroCO2] <- nonZeroValueDepths.ordered$rvalue_1
 Sala_CO2_efflux.df$Sala_x[ind.nonZeroCO2] <- Sala_CO2_efflux.coords.nonZero.dt$x
 Sala_CO2_efflux.df$Sala_y[ind.nonZeroCO2] <- Sala_CO2_efflux.coords.nonZero.dt$y
 Sala_CO2_efflux.df$Siegel_ind[ind.nonZeroCO2] <- coord.matchesNonZero$ind
 Sala_CO2_efflux.df$Siegel_x[ind.nonZeroCO2] <- coord.matchesNonZero$x
 Sala_CO2_efflux.df$Siegel_y[ind.nonZeroCO2] <- coord.matchesNonZero$y
 
+Sala_CO2_efflux.df.nonZeroCO2 <- Sala_CO2_efflux.df[ind.nonZeroCO2,]
+
 # save this object so we can reimport it in MATLAB; will just save a matrix
 # containing values for the non-zero data points
-write.csv(Sala_CO2_efflux.df[ind.nonZeroCO2,], "data/global_trawling/derived/output/Sala_CO2_efflux_nonZero.csv",
+write.csv(Sala_CO2_efflux.df.nonZeroCO2, "data/global_trawling/derived/output/Sala_CO2_efflux_nonZero.csv",
           row.names = FALSE)
 
 system(paste0("ssmtp -v jcollins2139@gmail.com < ~/zoonotic-C/aws_provisioning/ssmtp/notification_email.txt"))

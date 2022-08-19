@@ -104,18 +104,20 @@ end
 writematrix(years,'/Users/jamesrco/Code/global-trawling-CO2/data/global_trawling/derived/benthic_seqfractions/trawlYears.csv')
 
 split_ind = round([1:size(fseq_bottom_multyears,1)/7:size(fseq_bottom_multyears,1)]);
-fseq_bottom_multyears_1of6 = fseq_bottom_multyears(split_ind(1):split_ind(2),:);
-fseq_bottom_multyears_2of6 = fseq_bottom_multyears(split_ind(2)+1:split_ind(3),:);
-fseq_bottom_multyears_3of6 = fseq_bottom_multyears(split_ind(3)+1:split_ind(4),:);
-fseq_bottom_multyears_4of6 = fseq_bottom_multyears(split_ind(4)+1:split_ind(5),:);
-fseq_bottom_multyears_5of6 = fseq_bottom_multyears(split_ind(5)+1:split_ind(6),:);
-fseq_bottom_multyears_6of6 = fseq_bottom_multyears(split_ind(6)+1:split_ind(7),:);
-save('/Users/jamesrco/Code/global-trawling-CO2/data/global_trawling/derived/benthic_seqfractions/fseq_bottom_multyears_1of6.mat','fseq_bottom_multyears_1of6')
-save('/Users/jamesrco/Code/global-trawling-CO2/data/global_trawling/derived/benthic_seqfractions/fseq_bottom_multyears_2of6.mat','fseq_bottom_multyears_2of6')
-save('/Users/jamesrco/Code/global-trawling-CO2/data/global_trawling/derived/benthic_seqfractions/fseq_bottom_multyears_3of6.mat','fseq_bottom_multyears_3of6')
-save('/Users/jamesrco/Code/global-trawling-CO2/data/global_trawling/derived/benthic_seqfractions/fseq_bottom_multyears_4of6.mat','fseq_bottom_multyears_4of6')
-save('/Users/jamesrco/Code/global-trawling-CO2/data/global_trawling/derived/benthic_seqfractions/fseq_bottom_multyears_5of6.mat','fseq_bottom_multyears_5of6')
-save('/Users/jamesrco/Code/global-trawling-CO2/data/global_trawling/derived/benthic_seqfractions/fseq_bottom_multyears_6of6.mat','fseq_bottom_multyears_6of6')
+fseq_bottom_multyears_1of7 = fseq_bottom_multyears(split_ind(1):split_ind(2),:);
+fseq_bottom_multyears_2of7 = fseq_bottom_multyears(split_ind(2)+1:split_ind(3),:);
+fseq_bottom_multyears_3of7 = fseq_bottom_multyears(split_ind(3)+1:split_ind(4),:);
+fseq_bottom_multyears_4of7 = fseq_bottom_multyears(split_ind(4)+1:split_ind(5),:);
+fseq_bottom_multyears_5of7 = fseq_bottom_multyears(split_ind(5)+1:split_ind(6),:);
+fseq_bottom_multyears_6of7 = fseq_bottom_multyears(split_ind(6)+1:split_ind(7),:);
+fseq_bottom_multyears_7of7 = fseq_bottom_multyears(split_ind(7)+1:size(fseq_bottom_multyears,1),:);
+save('/Users/jamesrco/Code/global-trawling-CO2/data/global_trawling/derived/benthic_seqfractions/fseq_bottom_multyears_1of7.mat','fseq_bottom_multyears_1of7')
+save('/Users/jamesrco/Code/global-trawling-CO2/data/global_trawling/derived/benthic_seqfractions/fseq_bottom_multyears_2of7.mat','fseq_bottom_multyears_2of7')
+save('/Users/jamesrco/Code/global-trawling-CO2/data/global_trawling/derived/benthic_seqfractions/fseq_bottom_multyears_3of7.mat','fseq_bottom_multyears_3of7')
+save('/Users/jamesrco/Code/global-trawling-CO2/data/global_trawling/derived/benthic_seqfractions/fseq_bottom_multyears_4of7.mat','fseq_bottom_multyears_4of7')
+save('/Users/jamesrco/Code/global-trawling-CO2/data/global_trawling/derived/benthic_seqfractions/fseq_bottom_multyears_5of7.mat','fseq_bottom_multyears_5of7')
+save('/Users/jamesrco/Code/global-trawling-CO2/data/global_trawling/derived/benthic_seqfractions/fseq_bottom_multyears_6of7.mat','fseq_bottom_multyears_6of7')
+save('/Users/jamesrco/Code/global-trawling-CO2/data/global_trawling/derived/benthic_seqfractions/fseq_bottom_multyears_7of7.mat','fseq_bottom_multyears_7of7')
 
 % % plot both the fraction remaining after 100 years and the bottom depth
 % figure(1)
