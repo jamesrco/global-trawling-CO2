@@ -1,11 +1,11 @@
-# 06_ConstrainCO2Flux_adjFlux_EEZs.R
+# 07_ConstrainCO2Flux_adjFlux_EEZs.R
 # Created August 4, 2022
-# Purpose: Sixth in series of scripts used to constrain the estimate of
+# Purpose: Seventh in series of scripts used to constrain the estimate of
 # benthic CO2 flux in Sala  et al. 2021 using the sequestration fractions in
 # Siegel et al. 2021
 # Author: Jamie Collins, jcollins@edf.org
 
-# This sixth script performs the same calculations as in
+# This seventh script performs the same calculations as in
 # 05_ConstrainCO2Flux_adjFlux_extended.R (adjustment of the Sala et al
 # benthic CO2 flux data, with time-integrated estimates of total emissions to
 # the atmosphere for a variety of time horizons), but for specific
