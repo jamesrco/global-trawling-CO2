@@ -71,6 +71,9 @@ fseq_bottom.multyears <- fseq_bottom_multYears.raw
 
 fseq_bottom.multyears[fseq_bottom.multyears>=1] <- 1
 
+# save a copy
+save(fseq_bottom.multyears, file = "data/global_trawling/derived/benthic_seqfractions/seq_bottom.multyears.RData")
+
 seqFracYears.raw <- read.csv(file = "data/global_trawling/derived/benthic_seqfractions/trawlYears.csv",
                              header = FALSE)
 
@@ -114,11 +117,11 @@ for (i in 1:nrow(predicted.PgCO2_per_year_to_atmos)) {
   predicted.PgCO2_per_year_to_atmos[i,2] <- 
     sum(adjCO2efflux.thisyear*SalaModel_cell_area, na.rm=T)*(1/10^9)
   predicted.PgCO2_per_year_to_atmos[i,3] <- 
-    sum(adjCO2efflux.thisyear[Sala_CO2_efflux.df.nonZeroCO2$bottom_depth>=-200]*SalaModel_cell_area, na.rm=T)*(1/10^9)
+    sum(adjCO2efflux.thisyear[which(Sala_CO2_efflux.df.nonZeroCO2$bottom_depth > -200)]*SalaModel_cell_area, na.rm=T)*(1/10^9)
   predicted.PgCO2_per_year_to_atmos[i,4] <- 
-    sum(adjCO2efflux.thisyear[which(Sala_CO2_efflux.df.nonZeroCO2$bottom_depth < -200)]*SalaModel_cell_area, na.rm=T)*(1/10^9)
+    sum(adjCO2efflux.thisyear[which(Sala_CO2_efflux.df.nonZeroCO2$bottom_depth <= -200)]*SalaModel_cell_area, na.rm=T)*(1/10^9)
   predicted.PgCO2_per_year_to_atmos[i,5] <- 
-    sum(adjCO2efflux.thisyear[which(Sala_CO2_efflux.df.nonZeroCO2$bottom_depth < -400)]*SalaModel_cell_area, na.rm=T)*(1/10^9)
+    sum(adjCO2efflux.thisyear[which(Sala_CO2_efflux.df.nonZeroCO2$bottom_depth <= -400)]*SalaModel_cell_area, na.rm=T)*(1/10^9)
   
 #  time1 <- Sys.time()
 #  print(time1 - time0)
@@ -180,11 +183,11 @@ for (i in 1:nrow(adjCO2efflux_PgCO2_cumulative)) {
           (Sala_et_al_trawlTiming_results.raw$C_remin[1:i]/
              Sala_et_al_trawlTiming_results.raw$C_remin[1]))
   adjCO2efflux_PgCO2_cumulative[i,7] <- 
-    sum(predicted.PgCO2_per_year_to_atmos[nrow(predicted.PgCO2_per_year_to_atmos),4]*
+    sum(sum(sums_PgCO2[1:32], na.rm = T)*
           (Sala_et_al_trawlTiming_results.raw$C_remin[1:i]/
              Sala_et_al_trawlTiming_results.raw$C_remin[1]))
   adjCO2efflux_PgCO2_cumulative[i,8] <- 
-    sum(predicted.PgCO2_per_year_to_atmos[nrow(predicted.PgCO2_per_year_to_atmos),5]*
+    sum(sum(sums_PgCO2[1:30], na.rm = T)*
           (Sala_et_al_trawlTiming_results.raw$C_remin[1:i]/
              Sala_et_al_trawlTiming_results.raw$C_remin[1]))
   }
@@ -203,19 +206,19 @@ plot(adjCO2efflux_PgCO2_cumulative$Year, adjCO2efflux_PgCO2_cumulative$PgCO2_to_
      ylab = expression(paste("Pg CO"["2"]," emitted to atmosphere from global benthic trawling activity (cumulative, depths < 200 m)")))
 
 plot(adjCO2efflux_PgCO2_cumulative$Year, adjCO2efflux_PgCO2_cumulative$PgCO2_to_atmos_cumulative_global_200m_greater,
-     type = "l", col = "black", lwd = 1, xlab="Year", xlim = c(0,30), ylim = c(0,3), 
+     type = "l", col = "black", lwd = 1, xlab="Year", xlim = c(0,30), ylim = c(0,4.4), 
      ylab = expression(paste("Pg CO"["2"]," emitted to atmosphere from global benthic trawling activity (cumulative, depths > 200 m)")))
 lines(adjCO2efflux_PgCO2_cumulative$Year, adjCO2efflux_PgCO2_cumulative$PgCO2_to_atmos_cumulative_global_200m_greater_unadjusted,
       col = "red", lwd = 1)
 
 plot(adjCO2efflux_PgCO2_cumulative$Year, adjCO2efflux_PgCO2_cumulative$PgCO2_to_atmos_cumulative_global_200m_greater,
-     type = "l", col = "black", lwd = 1, xlab="Year", xlim = c(0,200), ylim = c(0,20), 
+     type = "l", col = "black", lwd = 1, xlab="Year", xlim = c(0,200), ylim = c(0,27), 
      ylab = expression(paste("Pg CO"["2"]," emitted to atmosphere from global benthic trawling activity (cumulative, depths > 200 m)")))
 lines(adjCO2efflux_PgCO2_cumulative$Year, adjCO2efflux_PgCO2_cumulative$PgCO2_to_atmos_cumulative_global_200m_greater_unadjusted,
       col = "red", lwd = 1)
 
 plot(adjCO2efflux_PgCO2_cumulative$Year, adjCO2efflux_PgCO2_cumulative$PgCO2_to_atmos_cumulative_global_400m_greater,
-     type = "l", col = "black", lwd = 1, xlab="Year", xlim = c(0,30), ylim = c(0,1.2), 
+     type = "l", col = "black", lwd = 1, xlab="Year", xlim = c(0,30), ylim = c(0,2.25), 
      ylab = expression(paste("Pg CO"["2"]," emitted to atmosphere from global benthic trawling activity (cumulative, depths > 400 m)")))
 lines(adjCO2efflux_PgCO2_cumulative$Year, adjCO2efflux_PgCO2_cumulative$PgCO2_to_atmos_cumulative_global_400m_greater_unadjusted,
       col = "red", lwd = 1)
@@ -225,8 +228,6 @@ plot(adjCO2efflux_PgCO2_cumulative$Year, adjCO2efflux_PgCO2_cumulative$PgCO2_to_
      ylab = expression(paste("Pg CO"["2"]," emitted to atmosphere from global benthic trawling activity (unadjusted)")))
 lines(adjCO2efflux_PgCO2_cumulative$Year, adjCO2efflux_PgCO2_cumulative$PgCO2_to_atmos_cumulative_global_alldepths,
       col = "black", lwd = 1)
-# after 100 y of continuous trawling, a cumulative 1.27 Pg CO2 will have reached the atmosphere 
-# after 200 y of continuous trawling, a cumulative 3.95 Pg CO2 will have reached the atmosphere 
 
 # # send email when done ... assumes SSMTP has been installed and config file and text file for the email are in right place, etc.
 # 
