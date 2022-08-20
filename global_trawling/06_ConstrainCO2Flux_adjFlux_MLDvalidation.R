@@ -34,8 +34,53 @@ library(R.matlab) # to read .mat file
 # using the Holte, Talley, et al., Argo-derived MLD climatology dataset, here:
 # http://mixedlayer.ucsd.edu/data/Argo_mixedlayers_monthlyclim_04142022.mat
 
-fseq_bottom_multYears_1of7.raw <- readMat("data/global_trawling/derived/benthic_seqfractions/fseq_bottom_multyears_1of7.mat")
+Argo_mixedlayers_monthlyclim_04142022.raw <- readMat("data/global_trawling/raw/UCSD_Argo_MLD_climatology/Argo_mixedlayers_monthlyclim_04142022.mat")
 
+# extract annual max for each point; subset to only (ocean) locations that
+# have max MLD estimates for them
+
+annualMaxMLD <- apply(Argo_mixedlayers_monthlyclim_04142022.raw$mld.da.max, c(2,3), max, na.rm = T)
+annualMaxMLD[which(is.infinite(annualMaxMLD))] <- NaN
+
+Argo_MLD.max <- as.data.frame(cbind(as.vector(Argo_mixedlayers_monthlyclim_04142022.raw$latm),
+                      as.vector(Argo_mixedlayers_monthlyclim_04142022.raw$lonm),
+                      as.vector(annualMaxMLD)))
+colnames(Argo_MLD.max) <- c("y","x","annualmaxMLD_m")
+
+Argo_MLD.max.oceanOnly <- Argo_MLD.max[!is.na(Argo_MLD.max$annualmaxMLD_m),]
+Argo_MLD.max.oceanOnly.dt <- data.table(Argo_MLD.max.oceanOnly)
+                      
+# specify a function to do the coordinate matching
+
+distMLD <- function(a, b){
+  dt <- data.table((Argo_MLD.max.oceanOnly.dt$x-a)^2+(Argo_MLD.max.oceanOnly.dt$y-b)^2)
+  ind <- which.min(dt$V1)
+  return(as.vector(Argo_MLD.max.oceanOnly.dt[ind,]))
+}
+
+# # do the matching, subset first
+# 
+# Sala_CO2_efflux.coords.nonZero.dt.sub <- Sala_CO2_efflux.coords.nonZero.dt[1:10000,]
+# 
+# time0 <- Sys.time()
+# 
+# MLDmatches.nonZero.sub <- Sala_CO2_efflux.coords.nonZero.dt.sub[, j = distMLD(x, y), by = 1:nrow(Sala_CO2_efflux.coords.nonZero.dt.sub)]
+# 
+# time1 <- Sys.time()
+# print(time1 - time0)
+
+# whole thing
+
+time0 <- Sys.time()
+
+MLDmatches.nonZero <- Sala_CO2_efflux.coords.nonZero.dt[, j = distMLD(x, y), by = 1:nrow(Sala_CO2_efflux.coords.nonZero.dt)]
+
+time1 <- Sys.time()
+print(time1 - time0)
+
+# save this object
+
+save(MLDmatches.nonZero, file = "data/global_trawling/derived/output/MLDmatches.nonZero.RData")
 
 # we are ready at this point to adjust the fluxes in the Sala et al dataset
 # using the appropriate (nearest match) benthic sequestration fractions in the
