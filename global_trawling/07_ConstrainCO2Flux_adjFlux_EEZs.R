@@ -25,6 +25,7 @@ options("rgdal_show_exportToProj4_warnings"="none")
 library(sp) # needs to be installed first
 options("rgdal_show_exportToProj4_warnings"="none")
 library(sf)
+library(dplyr)
 library(rgdal)
 library(raster) # assumes you have some version of GDAL up and running, and 
 # will force you to load several dependencies, including terra 
@@ -33,14 +34,30 @@ library(parallel) # part of base; doesn't need to be installed
 library(R.matlab) # to read .mat file
 
 # if not already loaded, load in the file containing the coordinate matches,
-# generated in previous script 02_ConstrainCO2Flux_coordMatch.R and saved to 
+# generated in previous script 03_ConstrainCO2Flux_coordMatch.R and saved to 
 # global-trawling-CO2/data/global_trawling/derived/output/
 
-load("data/global_trawling/derived/output/coord.matches.RData")
+# also load some other necessary inputs, from earlier scripts
 
-# need to load some shapefiles that define the EEZs
+load("data/global_trawling/derived/output/coord.matches.NonZero.RData")
+load("data/global_trawling/derived/benthic_seqfractions/fseq_bottom.multyears.RData")
+seqFracYears.raw <- read.csv(file = "data/global_trawling/derived/benthic_seqfractions/trawlYears.csv",
+                             header = FALSE)
 
+# define functions
+
+genEffluxFracs <- function(year){
+  yearInd <- which(seqFracYears.raw==year)
+  fseq_bottom.thisyear <- fseq_bottom.multyears[,yearInd]
+  effluxFrac_bottom.thisyear <- 1-as.numeric(unlist(fseq_bottom.thisyear))
+  return(effluxFrac_bottom.thisyear)
+}
+
+# load shapefile with EEZ polygons
 FMI_EEZ_polygons_v11_raw <- st_read("data/global_trawling/raw/FMI_world_EEZ_boundaries_v11/eez_v11.shp")
+
+# transform to match coordinate system we're using
+FMI_EEZ_polygons_v11.54009 <- st_transform(FMI_EEZ_polygons_v11_raw, "ESRI:54009")
 
 # subset to countries of interest
 # good reference to make sure we capture the top countries, in additon to the others
@@ -76,40 +93,165 @@ trawlEEZs <- c("Argentina",
                "United States",
                "Vietnam")
 
-# define function to subset the data by EEZ
+# make list object to hold EEZ points
+EEZ.nonZeroCO2points <- vector(mode = "list", length = length(trawlEEZs))
+names(EEZ.nonZeroCO2points) <- trawlEEZs
 
-EEZ_Argentina <- FMI_EEZ_polygons_v11_raw[FMI_EEZ_polygons_v11_raw$SOVEREIGN1=="Argentina",]
+# load in, format points for compatibility
+Sala_CO2_efflux.df.nonZeroCO2.raw <- read.csv("data/global_trawling/derived/output/Sala_CO2_efflux_nonZero.csv")
+Sala_CO2_efflux.df.nonZeroCO2 <- data.frame(Sala_CO2_efflux.df.nonZeroCO2.raw)
+rm(Sala_CO2_efflux.df.nonZeroCO2.raw)
 
-st_crop(harv_dtm, harv_boundary)
+points.sf <- st_as_sf(Sala_CO2_efflux.df.nonZeroCO2[,c("Sala_x","Sala_y")]*100000,
+                      coords = c("Sala_x","Sala_y"),
+                      crs = "ESRI:54009")
 
-# run the calculations
+# iterate to subset points by EEZ
 
-# set up structure to hold results
+for (i in 1:length(EEZ.nonZeroCO2points)) {
+  
+  this.EEZ <- FMI_EEZ_polygons_v11.54009[FMI_EEZ_polygons_v11.54009$SOVEREIGN1==trawlEEZs[i],]
+  thisEEZ.CO2points <- as.data.frame(st_intersects(x = points.sf, y = this.EEZ))
+  EEZ.nonZeroCO2points[i] <- thisEEZ.CO2points
+  
+}
 
-predicted.PgCO2_per_year_to_atmos_EEZs <- as.data.frame(matrix(data = NA, 
+# save this object
+save(EEZ.nonZeroCO2points, file = "data/global_trawling/derived/output/EEZ.nonZeroCO2points.RData")
+
+# now, can revisit the adjusted emissions calculations by EEZ
+
+# first, year-by-year
+
+# structure to hold results
+predicted.PgCO2_per_year_to_atmos.byEEZ <- as.data.frame(matrix(data = NA, 
                                                           nrow = length(seqFracYears.raw),
-                                                          ncol = 1+length(trawlEEZs)))
-colnames(predicted.PgCO2_per_year_to_atmos_EEZs) = c("Year",
-                                                     trawlEEZs)
-predicted.PgCO2_per_year_to_atmos_EEZs[,1] <- unlist(seqFracYears.raw)
+                                                          ncol = 2 + length(trawlEEZs)))
+colnames(predicted.PgCO2_per_year_to_atmos.byEEZ) = c("Year",
+                                                "PgCO2_per_year_to_atmos_global_all_depths",
+                                                trawlEEZs)
+predicted.PgCO2_per_year_to_atmos.byEEZ[,1] <- unlist(seqFracYears.raw)
 
 # iterate
 
-for (i in 1:nrow(predicted.PgCO2_per_year_to_atmos_EEZs)) {
+for (i in 1:nrow(predicted.PgCO2_per_year_to_atmos.byEEZ)) {
   
-  print(predicted.PgCO2_per_year_to_atmos_EEZs[i,1])
+  print(predicted.PgCO2_per_year_to_atmos.byEEZ[i,1])
   
   time0 <- Sys.time()
   
-  thisYear <- predicted.PgCO2_per_year_to_atmos_EEZs[i,1]
+  thisYear <- predicted.PgCO2_per_year_to_atmos.byEEZ[i,1]
+  
   EffluxFracs.thisyear <- genEffluxFracs(thisYear)
-  adjCO2efflux.thisyear.global <- unlist(lapply(ind.nonZeroCO2, constrainFlux, EffluxFracs.thisyear))
+  adjCO2efflux.thisyear <- EffluxFracs.thisyear*Sala_CO2_efflux.df.nonZeroCO2$co2_efflux
   
+  # store global calculation in column 2
+  predicted.PgCO2_per_year_to_atmos.byEEZ[i,2] <- 
+    sum(adjCO2efflux.thisyear, na.rm=T)*SalaModel_cell_area*(1/10^9)
   
+  # now, do the calcs by EEZ
   
-  predicted.PgCO2_per_year_to_atmos[i,2] <- sum(adjCO2efflux.thisyear*SalaModel_cell_area, na.rm=T)*(1/10^9)
+  for (j in 1:length(trawlEEZs)) {
+    
+    predicted.PgCO2_per_year_to_atmos.byEEZ[i,j+2] <- 
+      sum(adjCO2efflux.thisyear[EEZ.nonZeroCO2points[[j]]], na.rm=T)*SalaModel_cell_area*(1/10^9)
+    
+  }
   
   time1 <- Sys.time()
   print(time1 - time0)
   
 }
+
+# save
+
+write.csv(predicted.PgCO2_per_year_to_atmos.byEEZ, file = "data/global_trawling/derived/output/adjCO2efflux_global_PgCO2_yr_byEEZ.csv",
+          row.names = FALSE)
+
+# second, cumulative calculation
+
+# structure to hold results
+adjCO2efflux_PgCO2_cumulative.byEEZ <- vector(mode = "list", length = 2)
+names(adjCO2efflux_PgCO2_cumulative.byEEZ) <- c("adjusted","unadjusted")
+
+adjCO2efflux_PgCO2_cumulative.byEEZ[[1]] <- as.data.frame(matrix(data = NA, 
+                                                      nrow = 200,
+                                                      ncol = 2 + length(trawlEEZs)))
+colnames(adjCO2efflux_PgCO2_cumulative.byEEZ[[1]]) = c("Year",
+                                            "PgCO2_to_atmos_cumulative_global_alldepths",
+                                            trawlEEZs)
+adjCO2efflux_PgCO2_cumulative.byEEZ[[1]][,1] <- unlist(seqFracYears.raw)[1:200]
+
+adjCO2efflux_PgCO2_cumulative.byEEZ[[2]] <- as.data.frame(matrix(data = NA, 
+                                                                 nrow = 200,
+                                                                 ncol = 2 + length(trawlEEZs)))
+colnames(adjCO2efflux_PgCO2_cumulative.byEEZ[[2]]) = c("Year",
+                                                       "PgCO2_to_atmos_cumulative_global_alldepths",
+                                                       trawlEEZs)
+adjCO2efflux_PgCO2_cumulative.byEEZ[[2]][,1] <- unlist(seqFracYears.raw)[1:200]
+
+# iterate
+
+for (i in 1:nrow(adjCO2efflux_PgCO2_cumulative.byEEZ[[1]])) {
+  
+  adjCO2efflux_PgCO2_cumulative.byEEZ[[1]][i,2] <- 
+    sum(rev(predicted.PgCO2_per_year_to_atmos.byEEZ[1:i,2])*
+          (Sala_et_al_trawlTiming_results.raw$C_remin[1:i]/
+             Sala_et_al_trawlTiming_results.raw$C_remin[1]))
+  
+  adjCO2efflux_PgCO2_cumulative.byEEZ[[2]][i,2] <- 
+    sum(Sala_et_al_trawlTiming_results.raw$C_remin[1]*(1/10^9)*(44/12)*
+          (Sala_et_al_trawlTiming_results.raw$C_remin[1:i]/
+             Sala_et_al_trawlTiming_results.raw$C_remin[1]))
+  
+  for (j in 1:length(trawlEEZs)) {
+  
+    adjCO2efflux_PgCO2_cumulative.byEEZ[[1]][i,j+2] <- 
+      sum(rev(predicted.PgCO2_per_year_to_atmos.byEEZ[1:i,j+2])*
+            (Sala_et_al_trawlTiming_results.raw$C_remin[1:i]/
+               Sala_et_al_trawlTiming_results.raw$C_remin[1]))
+    
+    adjCO2efflux_PgCO2_cumulative.byEEZ[[2]][i,j+2] <- 
+      sum(sum(Sala_CO2_efflux.df.nonZeroCO2$co2_efflux[EEZ.nonZeroCO2points[[j]]], na.rm=T)*SalaModel_cell_area*(1/10^9)*
+            (Sala_et_al_trawlTiming_results.raw$C_remin[1:i]/
+               Sala_et_al_trawlTiming_results.raw$C_remin[1]))
+    
+  }
+  
+}
+
+# save
+
+write.csv(adjCO2efflux_PgCO2_cumulative.byEEZ, file = "data/global_trawling/derived/output/adjCO2efflux_global_PgCO2_cumulative_byEEZ.csv",
+          row.names = FALSE)
+
+# quick look at % differences in the first year between adjusted and unadjusted
+# estimates
+
+adjCO2efflux_PgCO2_cumulative.byEEZ[[1]][1,]/
+  adjCO2efflux_PgCO2_cumulative.byEEZ[[2]][1,]
+
+# what explains this pattern? depth?
+
+# as a first guess, let's take a look at weighted average depth of trawled area, by EEZ
+
+wt_avg_EEZtrawldepths <- data.frame(vector(mode = "numeric", length = length(trawlEEZs)))
+rownames(wt_avg_EEZtrawldepths) <- trawlEEZs
+colnames(wt_avg_EEZtrawldepths) <- "weighted_avg_Depth_m"
+
+for (i in 1:nrow(wt_avg_EEZtrawldepths)) {
+  
+  wt_avg_EEZtrawldepths[i,1] <- sum(Sala_CO2_efflux.df.nonZeroCO2$bottom_depth[EEZ.nonZeroCO2points[[i]]]*
+                                   (Sala_CO2_efflux.df.nonZeroCO2$co2_efflux[EEZ.nonZeroCO2points[[i]]]/
+                                  sum(Sala_CO2_efflux.df.nonZeroCO2$co2_efflux[EEZ.nonZeroCO2points[[i]]])))
+  
+}
+
+plotdata <- as.data.frame(cbind(as.numeric(unlist(wt_avg_EEZtrawldepths)),
+                  as.numeric(unlist(adjCO2efflux_PgCO2_cumulative.byEEZ[[1]][1,]/
+                    adjCO2efflux_PgCO2_cumulative.byEEZ[[2]][1,]))[3:26]))
+colnames(plotdata) <- c("Weighted avg. depth by mass",
+                        "Adjusted as % of unadjusted")
+rownames(plotdata) <- trawlEEZs
+  
+plot(plotdata) # generally, depth is a good explainer of the deviation 

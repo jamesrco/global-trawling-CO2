@@ -72,7 +72,7 @@ fseq_bottom.multyears <- fseq_bottom_multYears.raw
 fseq_bottom.multyears[fseq_bottom.multyears>=1] <- 1
 
 # save a copy
-save(fseq_bottom.multyears, file = "data/global_trawling/derived/benthic_seqfractions/seq_bottom.multyears.RData")
+save(fseq_bottom.multyears, file = "data/global_trawling/derived/benthic_seqfractions/fseq_bottom.multyears.RData")
 
 seqFracYears.raw <- read.csv(file = "data/global_trawling/derived/benthic_seqfractions/trawlYears.csv",
                              header = FALSE)
