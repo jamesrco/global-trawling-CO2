@@ -81,6 +81,7 @@ print(time1 - time0)
 # save this object
 
 save(MLDmatches.nonZero, file = "data/global_trawling/derived/output/MLDmatches.nonZero.RData")
+# load("data/global_trawling/derived/output/MLDmatches.nonZero.RData")
 
 # now, can do some analysis of the data using bottom depth and MLD
 

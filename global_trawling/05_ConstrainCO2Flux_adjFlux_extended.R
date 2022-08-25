@@ -194,6 +194,7 @@ for (i in 1:nrow(adjCO2efflux_PgCO2_cumulative)) {
 
 write.csv(adjCO2efflux_PgCO2_cumulative, file = "data/global_trawling/derived/output/adjCO2efflux_global_PgCO2_cumulative.csv",
           row.names = FALSE)
+# adjCO2efflux_PgCO2_cumulative <- read.csv("data/global_trawling/derived/output/adjCO2efflux_global_PgCO2_cumulative.csv")
 
 # some exploratory plots
 

@@ -32,6 +32,7 @@ library(raster) # assumes you have some version of GDAL up and running, and
 library(data.table)
 library(parallel) # part of base; doesn't need to be installed
 library(R.matlab) # to read .mat file
+library(maptools)
 
 # if not already loaded, load in the file containing the coordinate matches,
 # generated in previous script 03_ConstrainCO2Flux_coordMatch.R and saved to 
@@ -118,6 +119,7 @@ for (i in 1:length(EEZ.nonZeroCO2points)) {
 
 # save this object
 save(EEZ.nonZeroCO2points, file = "data/global_trawling/derived/output/EEZ.nonZeroCO2points.RData")
+# load("data/global_trawling/derived/output/EEZ.nonZeroCO2points.RData")
 
 # now, can revisit the adjusted emissions calculations by EEZ
 
@@ -224,6 +226,7 @@ for (i in 1:nrow(adjCO2efflux_PgCO2_cumulative.byEEZ[[1]])) {
 
 write.csv(adjCO2efflux_PgCO2_cumulative.byEEZ, file = "data/global_trawling/derived/output/adjCO2efflux_global_PgCO2_cumulative_byEEZ.csv",
           row.names = FALSE)
+# adjCO2efflux_PgCO2_cumulative.byEEZ <- read.csv(file = "data/global_trawling/derived/output/adjCO2efflux_global_PgCO2_cumulative_byEEZ.csv")
 
 # quick look at % differences in the first year between adjusted and unadjusted
 # estimates
@@ -247,11 +250,70 @@ for (i in 1:nrow(wt_avg_EEZtrawldepths)) {
   
 }
 
-plotdata <- as.data.frame(cbind(as.numeric(unlist(wt_avg_EEZtrawldepths)),
-                  as.numeric(unlist(adjCO2efflux_PgCO2_cumulative.byEEZ[[1]][1,]/
-                    adjCO2efflux_PgCO2_cumulative.byEEZ[[2]][1,]))[3:26]))
-colnames(plotdata) <- c("Weighted avg. depth by mass",
+EEZtrawldepths.plotdata <- as.data.frame(cbind(as.numeric(unlist(wt_avg_EEZtrawldepths)),
+                                as.numeric(adjCO2efflux_PgCO2_cumulative.byEEZ[1,3:26]/
+                                adjCO2efflux_PgCO2_cumulative.byEEZ[1,29:52])))
+# EEZtrawldepths.plotdata <- as.data.frame(cbind(as.numeric(unlist(wt_avg_EEZtrawldepths)),
+#                   as.numeric(unlist(adjCO2efflux_PgCO2_cumulative.byEEZ[[1]][1,]/
+#                     adjCO2efflux_PgCO2_cumulative.byEEZ[[2]][1,]))[3:26]))
+colnames(EEZtrawldepths.plotdata) <- c("Weighted avg. depth by mass",
                         "Adjusted as % of unadjusted")
-rownames(plotdata) <- trawlEEZs
-  
-plot(plotdata) # generally, depth is a good explainer of the deviation 
+rownames(EEZtrawldepths.plotdata) <- trawlEEZs
+EEZtrawldepths.plotdata <- EEZtrawldepths.plotdata[!rownames(EEZtrawldepths.plotdata)==c("Greenland","Philippines"),]
+
+# make points of relative size
+rel.sizeEEZpts.log <-
+  -1/log10(adjCO2efflux_PgCO2_cumulative.byEEZ[1,3:26]/
+             adjCO2efflux_PgCO2_cumulative.byEEZ$adjusted.PgCO2_to_atmos_cumulative_global_alldepths[1])
+rel.sizeEEZpts.log <-
+  rel.sizeEEZpts.log[trawlEEZs!=c("Greenland","Philippines")]
+
+rel.sizeEEZpts <-
+  adjCO2efflux_PgCO2_cumulative.byEEZ[1,3:26]/
+             adjCO2efflux_PgCO2_cumulative.byEEZ$adjusted.PgCO2_to_atmos_cumulative_global_alldepths[1]
+rel.sizeEEZpts <-
+  rel.sizeEEZpts[trawlEEZs!=c("Greenland","Philippines")]
+
+plot(-EEZtrawldepths.plotdata$`Weighted avg. depth by mass`,
+     EEZtrawldepths.plotdata$`Adjusted as % of unadjusted`,
+     pch = NA,
+     xlim = c(0,500)) 
+
+points(-EEZtrawldepths.plotdata$`Weighted avg. depth by mass`,
+       EEZtrawldepths.plotdata$`Adjusted as % of unadjusted`,
+     pch = 21,
+     col= "black",
+     bg = "lightgrey",
+     cex = as.numeric(rel.sizeEEZpts.log))
+
+text(-EEZtrawldepths.plotdata$`Weighted avg. depth by mass`+20+rel.sizeEEZpts*40,
+     EEZtrawldepths.plotdata$`Adjusted as % of unadjusted`+0.025,
+     trawlEEZs[trawlEEZs!=c("Greenland","Philippines")],
+     cex = 0.7)
+
+# set up some symbol sizes for the legend
+leg.pchSizes <- c(.7,.5,.25,.1,.05)
+leg.pchSizes.log <- -1/log10(leg.pchSizes)
+
+legend(325, 0.95,
+       legend = leg.pchSizes,
+       title = paste("Fraction of total est.\nglobal sediment\nC remineralization"),
+       pch = 21,
+       pt.bg = "lightgrey",
+       pt.cex = leg.pchSizes.log,
+       box.lty=0,
+       x.intersp = 3,
+       y.intersp = c(3,2,1,1,1))
+
+# pointLabel(-plotdata$`Weighted avg. depth by mass`,
+#            plotdata$`Adjusted as % of unadjusted`,
+#            labels = trawlEEZs[trawlEEZs!=c("Greenland","Philippines")],
+#            method = "SANN",
+#            offset = 0,
+#            cex = 0.7,
+#            allowSmallOverlap = FALSE,
+#            trace = FALSE,
+#            doPlot = TRUE)
+           
+# generally, depth appears to be a good explainer of the deviation 
+
