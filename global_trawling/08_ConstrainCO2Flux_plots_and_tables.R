@@ -594,3 +594,9 @@ summary(EEZ_fit)
 # Multiple R-squared:  0.6099,	Adjusted R-squared:  0.5904 
 # F-statistic: 31.26 on 1 and 20 DF,  p-value: 1.793e-05
 
+# Finally, a Table S1 with some relevant data
+
+TableS1.years <- c(1,5,10,25,30,50,75,100,200)
+TableS1.numcols <- length(TableS1.years)+1
+TableS1.numrows <- (length(trawlEEZs)*3+3+3+3)
+
