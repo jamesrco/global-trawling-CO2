@@ -265,20 +265,20 @@ par(mar=c(3,5,1,1),
     lwd = lwd.thisplot)
 
 plot(adjCO2efflux_PgCO2_cumulative.byEEZ$unadjusted.Year,
-     adjCO2efflux_PgCO2_cumulative.byEEZ$unadjusted.Canada,
+     adjCO2efflux_PgCO2_cumulative.byEEZ$unadjusted.Morocco,
      type = "l", col = "darkgrey", lty = 5, lwd = lwd.thisplot,
-     xlab="Year", xlim = c(0,30), ylim = c(0,0.15),
+     xlab="Year", xlim = c(0,30), ylim = c(0,0.11),
      yaxt = "n",
      xaxt = "n",
      yaxs = "i",
      xaxs = "i",
-     ylab = paste("Pg CO2 emitted to atmosphere\n(cumulative, Canadian EEZ)"))
+     ylab = paste("Pg CO2 emitted to atmosphere\n(cumulative, Moroccan EEZ)"))
 
 axis(side = 1, lwd = lwd.thisplot, tck = -0.02)
 axis(side = 2, lwd = lwd.thisplot, tck = -0.02)
 
 # add adjusted estimate
-lines(adjCO2efflux_PgCO2_cumulative.byEEZ$adjusted.Year, adjCO2efflux_PgCO2_cumulative.byEEZ$adjusted.Canada,
+lines(adjCO2efflux_PgCO2_cumulative.byEEZ$adjusted.Year, adjCO2efflux_PgCO2_cumulative.byEEZ$adjusted.Morocco,
       col = "black", lwd = lwd.thisplot)
 
 # add legend
@@ -446,7 +446,7 @@ legend("topleft",
 
 dev.off() 
 
-pdf("img_output/Fig2e.pdf",
+pdf("img_output/FigS1e.pdf",
     width = 3.54, height = 2.5, # 90 mm = 3.54 in
     bg = "white", pointsize = 7,
     colormodel = "cmyk",
@@ -459,20 +459,20 @@ par(mar=c(3,5,1,1),
     lwd = lwd.thisplot)
 
 plot(adjCO2efflux_PgCO2_cumulative.byEEZ$unadjusted.Year,
-     adjCO2efflux_PgCO2_cumulative.byEEZ$unadjusted.Canada,
+     adjCO2efflux_PgCO2_cumulative.byEEZ$unadjusted.Morocco,
      type = "l", col = "darkgrey", lty = 5, lwd = lwd.thisplot,
-     xlab="Year", xlim = c(0,200), ylim = c(0,0.9),
+     xlab="Year", xlim = c(0,200), ylim = c(0,0.65),
      yaxt = "n",
      xaxt = "n",
      yaxs = "i",
      xaxs = "i",
-     ylab = paste("Pg CO2 emitted to atmosphere\n(cumulative, Canadian EEZ)"))
+     ylab = paste("Pg CO2 emitted to atmosphere\n(cumulative, Moroccan EEZ)"))
 
 axis(side = 1, lwd = lwd.thisplot, tck = -0.02)
 axis(side = 2, lwd = lwd.thisplot, tck = -0.02)
 
 # add adjusted estimate
-lines(adjCO2efflux_PgCO2_cumulative.byEEZ$adjusted.Year, adjCO2efflux_PgCO2_cumulative.byEEZ$adjusted.Canada,
+lines(adjCO2efflux_PgCO2_cumulative.byEEZ$adjusted.Year, adjCO2efflux_PgCO2_cumulative.byEEZ$adjusted.Morocco,
       col = "black", lwd = lwd.thisplot)
 
 # add legend
@@ -487,6 +487,7 @@ dev.off()
 # Fig. 3: relationship between adjusted-unadjusted deviation and some measure of depth of EEZ
 # from 07_ConstrainCO2Flux_adjFlux_EEZs.R
 
+# first version, with symbol size based on fraction of total est. global sediment remineralization 
 pdf("img_output/Fig3.pdf",
     width = 4.75, height = 2.5, # 90 mm = 3.54 in
     bg = "white", pointsize = 7,
@@ -504,7 +505,7 @@ plot(-EEZtrawldepths.plotdata$`Weighted avg. depth by mass`,
      EEZtrawldepths.plotdata$`Adjusted as % of unadjusted`,
      lwd = lwd.thisplot,
      pch = NA,
-     xlim = c(0,500),
+     xlim = c(0,550),
      ylim = c(0,1.1),
      yaxs = "i",
      xaxs = "i",
@@ -536,7 +537,7 @@ lines(EEZ_fit_predval ~ EEZtrawldepths.depthinv, col = "light coral",
 
 text(-EEZtrawldepths.plotdata$`Weighted avg. depth by mass`+rel.sizeEEZpts*30-5,
      EEZtrawldepths.plotdata$`Adjusted as % of unadjusted`+0.025,
-     trawlEEZs[trawlEEZs!=c("Greenland","Philippines")],
+     trawlEEZs[!(trawlEEZs %in% c("Guyana","Bangladesh","Pakistan","Myanmar"))],
      cex = 0.7,
      pos = 4)
 
@@ -545,7 +546,7 @@ my.p = summary(EEZ_fit)$coefficients[2,4]
 
 rp = vector('expression',2)
 rp[1] = substitute(expression(R^2 == MYVALUE), 
-                   list(MYVALUE = format(r2,dig=3)))[2]
+                   list(MYVALUE = format(r2,dig=2)))[2]
 rp[2] = substitute(expression(italic(p) == MYOTHERVALUE), 
                    list(MYOTHERVALUE = format(my.p, scientific = FALSE, digits = 1)))[2]
 
@@ -557,7 +558,7 @@ legend('topright', legend = rp, bty = 'n',
 leg.pchSizes <- c(.7,.5,.25,.1,.05)
 leg.pchSizes.log <- -1/log10(leg.pchSizes)
 
-legend(550, 0.95,
+legend(600, 0.95,
        legend = leg.pchSizes,
        title = paste("Fraction of total est.\nglobal sediment\nC remineralization"),
        pch = 21,
@@ -568,12 +569,179 @@ legend(550, 0.95,
        x.intersp = 3,
        y.intersp = c(3,2,1,1,1))
 
+dev.off()
+
+# alternate version, with symbol size based on avg landing tonnage from benthic trawling 
+pdf("img_output/Fig3_alt.pdf",
+    width = 4.75, height = 2.5, # 90 mm = 3.54 in
+    bg = "white", pointsize = 7,
+    colormodel = "cmyk",
+    paper = "A4")
+
+lwd.thisplot = 0.75
+
+par(mar=c(3,5,1,10),
+    mgp=c(2,0.5,0),
+    lwd = lwd.thisplot,
+    xpd=TRUE)
+
+plot(-EEZtrawldepths.plotdata$`Weighted avg. depth by mass`,
+     EEZtrawldepths.plotdata$`Adjusted as % of unadjusted`,
+     lwd = lwd.thisplot,
+     pch = NA,
+     xlim = c(0,550),
+     ylim = c(0,1.1),
+     yaxs = "i",
+     xaxs = "i",
+     yaxt = "n",
+     xaxt = "n",
+     xlab = "Mass-weighted depth of EEZ trawled area (m)",
+     ylab = paste("Adjusted emissions estimate as fraction\nof original Sala et al. estimate"))
+
+# perform linear regression; plot
+EEZtrawldepths.depthinv <- -EEZtrawldepths.plotdata[,1]
+EEZ_fit <- lm(EEZtrawldepths.plotdata[,2] ~ EEZtrawldepths.depthinv)
+
+axis(side = 1, lwd = lwd.thisplot, tck = -0.02)
+axis(side = 2, lwd = lwd.thisplot, tck = -0.02)
+
+points(-EEZtrawldepths.plotdata$`Weighted avg. depth by mass`,
+       EEZtrawldepths.plotdata$`Adjusted as % of unadjusted`,
+       pch = 21,
+       lwd = lwd.thisplot,
+       col= "black",
+       bg = "lightgrey",
+       cex = as.numeric(rel.sizeEEZpts.landings))
+
+#add fitted regression line to scatterplot
+EEZ_fit_predval <- predict(EEZ_fit, data.frame(EEZtrawldepths.depthinv))
+lines(EEZ_fit_predval ~ EEZtrawldepths.depthinv, col = "light coral",
+      lwd = 1,
+      lty = 1)
+
+text(-EEZtrawldepths.plotdata$`Weighted avg. depth by mass`+rel.sizeEEZpts*30-5,
+     EEZtrawldepths.plotdata$`Adjusted as % of unadjusted`+0.025,
+     trawlEEZs[!(trawlEEZs %in% c("Guyana","Bangladesh","Pakistan","Myanmar"))],
+     cex = 0.7,
+     pos = 4)
+
+r2 = summary(EEZ_fit)$adj.r.squared
+my.p = summary(EEZ_fit)$coefficients[2,4]
+
+rp = vector('expression',2)
+rp[1] = substitute(expression(R^2 == MYVALUE), 
+                   list(MYVALUE = format(r2,dig=2)))[2]
+rp[2] = substitute(expression(italic(p) == MYOTHERVALUE), 
+                   list(MYOTHERVALUE = format(my.p, scientific = FALSE, digits = 1)))[2]
+
+legend('topright', legend = rp, bty = 'n',
+       cex = 0.8)
+
+# set up some symbol sizes for the legend
+# will need to be moved in Illustrator later
+leg.pchSizes <- c(5,2.5,1,0.5,0.25,.1)
+
+legend(600, 0.95,
+       legend = leg.pchSizes,
+       title = paste("Avg. landings from\nbenthic trawling,\n2009-2018\n(Mt biomass)"),
+       pch = 21,
+       pt.bg = "lightgrey",
+       pt.cex = leg.pchSizes,
+       box.lty=0,
+       bg = NULL,
+       x.intersp = 3,
+       y.intersp = c(3,2,1,1,1))
+
+dev.off() 
+
+# second alternate version, with symbol size based on avg landing tonnage from benthic trawling,
+# and the y-axis using a different measure of deviation
+pdf("img_output/Fig3_alt2.pdf",
+    width = 4.75, height = 2.5, # 90 mm = 3.54 in
+    bg = "white", pointsize = 7,
+    colormodel = "cmyk",
+    paper = "A4")
+
+lwd.thisplot = 0.75
+
+par(mar=c(3,5,1,10),
+    mgp=c(2,0.5,0),
+    lwd = lwd.thisplot,
+    xpd=TRUE)
+
+plot(-EEZtrawldepths.plotdata$`Weighted avg. depth by mass`,
+     EEZtrawldepths.plotdata$`Adjusted-Sala % deviation`,
+     lwd = lwd.thisplot,
+     pch = NA,
+     xlim = c(0,550),
+     ylim = rev(c(5,-85)),
+     yaxs = "i",
+     xaxs = "i",
+     yaxt = "n",
+     xaxt = "n",
+     xlab = "Mass-weighted depth of EEZ trawled area (m)",
+     ylab = paste("Adjusted estimate, % deviation from original\nSala et al. estimate\n(cumulative emissions after 30 years)"))
+
+# perform linear regression; plot
+EEZtrawldepths.depthinv <- -EEZtrawldepths.plotdata[,1]
+EEZ_fit.alt <- lm(EEZtrawldepths.plotdata[,3] ~ EEZtrawldepths.depthinv)
+
+axis(side = 1, lwd = lwd.thisplot, tck = -0.02)
+axis(side = 2, lwd = lwd.thisplot, tck = -0.02)
+
+points(-EEZtrawldepths.plotdata$`Weighted avg. depth by mass`,
+       EEZtrawldepths.plotdata$`Adjusted-Sala % deviation`,
+       pch = 21,
+       lwd = lwd.thisplot,
+       col= "black",
+       bg = "lightgrey",
+       cex = as.numeric(rel.sizeEEZpts.landings))
+
+#add fitted regression line to scatterplot
+EEZ_fit_predval.alt <- predict(EEZ_fit.alt, data.frame(EEZtrawldepths.depthinv))
+lines(EEZ_fit_predval.alt ~ EEZtrawldepths.depthinv, col = "light coral",
+      lwd = 1,
+      lty = 1)
+
+text(-EEZtrawldepths.plotdata$`Weighted avg. depth by mass`+rel.sizeEEZpts*30-5,
+     EEZtrawldepths.plotdata$`Adjusted-Sala % deviation`+0.025,
+     trawlEEZs[!(trawlEEZs %in% c("Guyana","Bangladesh","Pakistan","Myanmar"))],
+     cex = 0.7,
+     pos = 4)
+
+r2.alt = summary(EEZ_fit.alt)$adj.r.squared
+my.p.alt = summary(EEZ_fit.alt)$coefficients[2,4]
+
+rp = vector('expression',2)
+rp[1] = substitute(expression(R^2 == MYVALUE), 
+                   list(MYVALUE = format(r2.alt,dig=2)))[2]
+rp[2] = substitute(expression(italic(p) == MYOTHERVALUE), 
+                   list(MYOTHERVALUE = format(my.p.alt, scientific = FALSE, digits = 1)))[2]
+
+legend('topright', legend = rp, bty = 'n',
+       cex = 0.8)
+
+# set up some symbol sizes for the legend
+# will need to be moved in Illustrator later
+leg.pchSizes <- c(5,2.5,1,0.5,0.25,.1)
+
+legend(600, 0.95,
+       legend = leg.pchSizes,
+       title = paste("Avg. landings from\nbenthic trawling,\n2009-2018\n(Mt biomass)"),
+       pch = 21,
+       pt.bg = "lightgrey",
+       pt.cex = leg.pchSizes,
+       box.lty=0,
+       bg = NULL,
+       x.intersp = 3,
+       y.intersp = c(3,2,1,1,1))
+
 dev.off() 
 
 # get some information concerning the regression
 
-summary(EEZ_fit)
-
+# summary(EEZ_fit)
+# 
 # > summary(EEZ_fit)
 # 
 # Call:
@@ -581,18 +749,40 @@ summary(EEZ_fit)
 # 
 # Residuals:
 #   Min       1Q   Median       3Q      Max 
-# -0.53470 -0.08247  0.05543  0.14212  0.23272 
+# -0.49652 -0.08074  0.02328  0.13844  0.20553 
 # 
 # Coefficients:
 #   Estimate Std. Error t value Pr(>|t|)    
-# (Intercept)              0.8833679  0.0639742  13.808 1.10e-11 ***
-#   EEZtrawldepths.depthinv -0.0019380  0.0003466  -5.591 1.79e-05 ***
+# (Intercept)              0.8325444  0.0524483  15.874 7.73e-16 ***
+#   EEZtrawldepths.depthinv -0.0017577  0.0002276  -7.722 1.63e-08 ***
 #   ---
 #   Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 # 
-# Residual standard error: 0.1914 on 20 degrees of freedom
-# Multiple R-squared:  0.6099,	Adjusted R-squared:  0.5904 
-# F-statistic: 31.26 on 1 and 20 DF,  p-value: 1.793e-05
+# Residual standard error: 0.1805 on 29 degrees of freedom
+# Multiple R-squared:  0.6728,	Adjusted R-squared:  0.6615 
+# F-statistic: 59.62 on 1 and 29 DF,  p-value: 1.628e-08
+
+summary(EEZ_fit.alt)
+
+# > summary(EEZ_fit.alt)
+# 
+# Call:
+#   lm(formula = EEZtrawldepths.plotdata[, 3] ~ EEZtrawldepths.depthinv)
+# 
+# Residuals:
+#   Min      1Q  Median      3Q     Max 
+# -33.360  -3.532   0.888   5.550  19.954 
+# 
+# Coefficients:
+#   Estimate Std. Error t value Pr(>|t|)    
+# (Intercept)              1.46458    3.16352   0.463    0.647    
+# EEZtrawldepths.depthinv -0.12887    0.01373  -9.386 2.72e-10 ***
+#   ---
+#   Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+# 
+# Residual standard error: 10.89 on 29 degrees of freedom
+# Multiple R-squared:  0.7523,	Adjusted R-squared:  0.7438 
+# F-statistic: 88.09 on 1 and 29 DF,  p-value: 2.725e-10
 
 # Finally, a Table S1 with some relevant data
 

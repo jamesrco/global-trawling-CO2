@@ -59,46 +59,53 @@ FMI_EEZ_polygons_v11_raw <- st_read("data/global_trawling/raw/FMI_world_EEZ_boun
 
 # transform to match coordinate system we're using
 FMI_EEZ_polygons_v11.54009 <- st_transform(FMI_EEZ_polygons_v11_raw, "ESRI:54009")
-
-# subset to countries of interest
-# good reference to make sure we capture the top countries, in additon to the others
-# we are curious about for various reasons:
-# Steadman et al., 2021, New perspectives on an old fishing practice: Scale, 
-# context and impacts of bottom trawling; available at
-# https://oursharedseas.com/wp-content/uploads/2021/12/HI-RES-REPORT-‘New-perspectives-on-an-old-fishing-practice.pdf
-
+ 
 # define a list of countries we're interested in
 
-trawlEEZs <- c("Argentina",
-               "Canada",
-               "China",
-               "Denmark",
-               "France",
-               "Germany",
-               "Greenland",
-               "Iceland",
-               "India",
-               "Indonesia",
-               "Ireland",
-               "Italy",
-               "Japan",
-               "Malaysia",
-               "Morocco",
-               "Netherlands",
-               "Norway",
-               "Philippines",
-               "Russia",
-               "South Korea",
-               "Sweden",
-               "United Kingdom",
-               "United States",
-               "Vietnam")
+# these are the countries with the 30 highest average landings from benthic trawling
+# from 2009-2018 (per Sea Around Us data ... see calculations in 9_ConstrainCO2Flux_getSAUdata.R)
+# and top 10 countries ranked by % of their total EEZ catch from bottom trawling gears 
+# (per Steadman et al., 2021, New perspectives on an old fishing practice: Scale, 
+# context and impacts of bottom trawling; available at
+# https://oursharedseas.com/wp-content/uploads/2021/12/HI-RES-REPORT-‘New-perspectives-on-an-old-fishing-practice.pdf )
 
-# make list object to hold EEZ points
-EEZ.nonZeroCO2points <- vector(mode = "list", length = length(trawlEEZs))
-names(EEZ.nonZeroCO2points) <- trawlEEZs
+trawlEEZs <- c("China",
+                   "Vietnam",
+                   "Indonesia",
+                   "India",
+                   "Morocco",
+                   "Japan",
+                   "United States",
+                   "South Korea",
+                   "United Kingdom",
+                   "Malaysia",
+                   "Argentina",
+                   "Myanmar",
+                   "Mexico",
+                   "Thailand",
+                   "Russia",
+                   "Norway",
+                   "Guinea",
+                   "Guinea-Bissau",
+                   "Namibia",
+                   "New Zealand",
+                   "Denmark",
+                   "Angola",
+                   "Canada",
+                   "Iceland",
+                   "Pakistan",
+                   "Turkey",
+                   "Brazil",
+                   "Bangladesh",
+                   "South Africa",
+                   "Ireland",
+                   "Netherlands",
+                   "Côte d'Ivoire",
+                   "Germany",
+                   "Republ. of Congo",
+                   "Guyana")
 
-# load in, format points for compatibility
+# load in, format complete set of non-zero value points for compatibility
 Sala_CO2_efflux.df.nonZeroCO2.raw <- read.csv("data/global_trawling/derived/output/Sala_CO2_efflux_nonZero.csv")
 Sala_CO2_efflux.df.nonZeroCO2 <- data.frame(Sala_CO2_efflux.df.nonZeroCO2.raw)
 rm(Sala_CO2_efflux.df.nonZeroCO2.raw)
@@ -107,17 +114,39 @@ points.sf <- st_as_sf(Sala_CO2_efflux.df.nonZeroCO2[,c("Sala_x","Sala_y")]*10000
                       coords = c("Sala_x","Sala_y"),
                       crs = "ESRI:54009")
 
+# make list object to hold EEZ points
+EEZ.nonZeroCO2points <- vector(mode = "list", length = length(trawlEEZs))
+names(EEZ.nonZeroCO2points) <- trawlEEZs
+
 # iterate to subset points by EEZ
 
 for (i in 1:length(EEZ.nonZeroCO2points)) {
   
-  this.EEZ <- FMI_EEZ_polygons_v11.54009[FMI_EEZ_polygons_v11.54009$SOVEREIGN1==trawlEEZs[i],]
-  thisEEZ.CO2points <- as.data.frame(st_intersects(x = points.sf, y = this.EEZ))
-  EEZ.nonZeroCO2points[i] <- thisEEZ.CO2points
+  if (trawlEEZs[i]=="Côte d'Ivoire") {
+    
+    this.EEZ <- FMI_EEZ_polygons_v11.54009[FMI_EEZ_polygons_v11.54009$SOVEREIGN1=="Ivory Coast",]
+    
+    } else if (trawlEEZs[i]=="Republ. of Congo") {
+      
+      this.EEZ <- FMI_EEZ_polygons_v11.54009[FMI_EEZ_polygons_v11.54009$SOVEREIGN1=="Republic of the Congo",]
+    
+    } else {
+      
+      this.EEZ <- FMI_EEZ_polygons_v11.54009[FMI_EEZ_polygons_v11.54009$SOVEREIGN1==trawlEEZs[i],]
+      
+    }
+  
+      thisEEZ.CO2points <- as.data.frame(st_intersects(x = points.sf, y = this.EEZ))
+      EEZ.nonZeroCO2points[[i]] <- thisEEZ.CO2points$row.id
   
 }
 
 # save this object
+# worth noting it's pretty unlikely that there's *no* remineralization going on in
+# Bangladeshi, Guyanese, Myanmar and Pakistani EEZs considering how much catch these
+# countries land from benthic trawling (based on SAU data)
+# maybe these countries are lacking in AIS ground stations?
+
 save(EEZ.nonZeroCO2points, file = "data/global_trawling/derived/output/EEZ.nonZeroCO2points.RData")
 # load("data/global_trawling/derived/output/EEZ.nonZeroCO2points.RData")
 
@@ -251,29 +280,52 @@ for (i in 1:nrow(wt_avg_EEZtrawldepths)) {
 }
 
 EEZtrawldepths.plotdata <- as.data.frame(cbind(as.numeric(unlist(wt_avg_EEZtrawldepths)),
-                                as.numeric(adjCO2efflux_PgCO2_cumulative.byEEZ[1,3:26]/
-                                adjCO2efflux_PgCO2_cumulative.byEEZ[1,29:52])))
-# EEZtrawldepths.plotdata <- as.data.frame(cbind(as.numeric(unlist(wt_avg_EEZtrawldepths)),
-#                   as.numeric(unlist(adjCO2efflux_PgCO2_cumulative.byEEZ[[1]][1,]/
-#                     adjCO2efflux_PgCO2_cumulative.byEEZ[[2]][1,]))[3:26]))
+                                as.numeric(adjCO2efflux_PgCO2_cumulative.byEEZ[1,3:37]/
+                                adjCO2efflux_PgCO2_cumulative.byEEZ[1,40:74]),
+                                as.numeric((as.numeric(adjCO2efflux_PgCO2_cumulative.byEEZ[30,3:37]-
+                                   adjCO2efflux_PgCO2_cumulative.byEEZ[30,40:74])/
+                                   adjCO2efflux_PgCO2_cumulative.byEEZ[30,40:74])*100)))
+ # EEZtrawldepths.plotdata <- as.data.frame(cbind(as.numeric(unlist(wt_avg_EEZtrawldepths)),
+ #                   as.numeric(unlist(adjCO2efflux_PgCO2_cumulative.byEEZ[[1]][1,]/
+ #                     adjCO2efflux_PgCO2_cumulative.byEEZ[[2]][1,]))[3:37]))
 colnames(EEZtrawldepths.plotdata) <- c("Weighted avg. depth by mass",
-                        "Adjusted as % of unadjusted")
+                        "Adjusted as % of unadjusted","Adjusted-Sala % deviation")
 rownames(EEZtrawldepths.plotdata) <- trawlEEZs
-EEZtrawldepths.plotdata <- EEZtrawldepths.plotdata[!rownames(EEZtrawldepths.plotdata)==c("Greenland","Philippines"),]
+
+EEZtrawldepths.plotdata <- EEZtrawldepths.plotdata[!(trawlEEZs %in% c("Guyana","Bangladesh","Pakistan","Myanmar")),]
 
 # make points of relative size
+# one set, based on fraction of total est. global sediment remineralization
 rel.sizeEEZpts.log <-
-  -1/log10(adjCO2efflux_PgCO2_cumulative.byEEZ[1,3:26]/
+  -1/log10(adjCO2efflux_PgCO2_cumulative.byEEZ[1,3:37]/
              adjCO2efflux_PgCO2_cumulative.byEEZ$adjusted.PgCO2_to_atmos_cumulative_global_alldepths[1])
 rel.sizeEEZpts.log <-
-  rel.sizeEEZpts.log[trawlEEZs!=c("Greenland","Philippines")]
+  rel.sizeEEZpts.log[!(trawlEEZs %in% c("Guyana","Bangladesh","Pakistan","Myanmar"))]
 
 rel.sizeEEZpts <-
-  adjCO2efflux_PgCO2_cumulative.byEEZ[1,3:26]/
-             adjCO2efflux_PgCO2_cumulative.byEEZ$adjusted.PgCO2_to_atmos_cumulative_global_alldepths[1]
+  adjCO2efflux_PgCO2_cumulative.byEEZ[1,3:37]/
+  adjCO2efflux_PgCO2_cumulative.byEEZ$adjusted.PgCO2_to_atmos_cumulative_global_alldepths[1]
 rel.sizeEEZpts <-
-  rel.sizeEEZpts[trawlEEZs!=c("Greenland","Philippines")]
+  rel.sizeEEZpts[!(trawlEEZs %in% c("Guyana","Bangladesh","Pakistan","Myanmar"))]
 
+# another alternate set, based on avg landing tonnage from benthic trawling
+# assumes user has run 09_ConstrainCO2Flux_getSAUdata.R
+
+# make vector of landings data in right order
+meanBenthicLandings_metrictons <- vector(mode = "numeric", length = length(trawlEEZs))
+names(meanBenthicLandings_metrictons) <- trawlEEZs
+for (i in 1:length(meanBenthicLandings_metrictons)) {
+  
+  meanBenthicLandings_metrictons[i] <- SAU_benthicCatchdata.sorted.aggregated$`Mean_2009-2018`[SAU_benthicCatchdata.sorted.aggregated$Country==names(meanBenthicLandings_metrictons)[i]]
+  
+}
+
+rel.sizeEEZpts.landings <-
+  meanBenthicLandings_metrictons/10^6
+rel.sizeEEZpts.landings <-
+  rel.sizeEEZpts.landings[!(trawlEEZs %in% c("Guyana","Bangladesh","Pakistan","Myanmar"))]
+
+# now, plot: with symbol size based on fraction of total est. global sediment remineralization 
 plot(-EEZtrawldepths.plotdata$`Weighted avg. depth by mass`,
      EEZtrawldepths.plotdata$`Adjusted as % of unadjusted`,
      pch = NA,
@@ -288,7 +340,7 @@ points(-EEZtrawldepths.plotdata$`Weighted avg. depth by mass`,
 
 text(-EEZtrawldepths.plotdata$`Weighted avg. depth by mass`+20+rel.sizeEEZpts*40,
      EEZtrawldepths.plotdata$`Adjusted as % of unadjusted`+0.025,
-     trawlEEZs[trawlEEZs!=c("Greenland","Philippines")],
+     trawlEEZs[!(trawlEEZs %in% c("Guyana","Bangladesh","Pakistan","Myanmar"))],
      cex = 0.7)
 
 # set up some symbol sizes for the legend
@@ -317,3 +369,33 @@ legend(325, 0.95,
            
 # generally, depth appears to be a good explainer of the deviation 
 
+# plot with symbol size based on avg landing tonnage from benthic trawling 
+plot(-EEZtrawldepths.plotdata$`Weighted avg. depth by mass`,
+     EEZtrawldepths.plotdata$`Adjusted as % of unadjusted`,
+     pch = NA,
+     xlim = c(0,500)) 
+
+points(-EEZtrawldepths.plotdata$`Weighted avg. depth by mass`,
+       EEZtrawldepths.plotdata$`Adjusted as % of unadjusted`,
+       pch = 21,
+       col= "black",
+       bg = "lightgrey",
+       cex = as.numeric(rel.sizeEEZpts.landings))
+
+text(-EEZtrawldepths.plotdata$`Weighted avg. depth by mass`+20+rel.sizeEEZpts*40,
+     EEZtrawldepths.plotdata$`Adjusted as % of unadjusted`+0.025,
+     trawlEEZs[!(trawlEEZs %in% c("Guyana","Bangladesh","Pakistan","Myanmar"))],
+     cex = 0.7)
+
+# set up some symbol sizes for the legend
+leg.pchSizes <- c(5,2.5,1,0.5,0.25,.1)
+
+legend(325, 0.95,
+       legend = leg.pchSizes,
+       title = paste("Avg. landings from\nbenthic trawling,\n2009-2018\n(Mt biomass)"),
+       pch = 21,
+       pt.bg = "lightgrey",
+       pt.cex = leg.pchSizes,
+       box.lty=0,
+       x.intersp = 3,
+       y.intersp = c(3,2,1,1,1))
