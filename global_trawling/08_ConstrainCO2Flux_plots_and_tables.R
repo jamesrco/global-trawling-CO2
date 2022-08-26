@@ -511,7 +511,7 @@ plot(-EEZtrawldepths.plotdata$`Weighted avg. depth by mass`,
      xaxs = "i",
      yaxt = "n",
      xaxt = "n",
-     xlab = "Mass-weighted depth of EEZ trawled area (m)",
+     xlab = "Weighted mean depth of EEZ trawled area (m)",
      ylab = paste("Adjusted emissions estimate as fraction\nof original Sala et al. estimate"))
 
 # perform linear regression; plot
@@ -595,7 +595,7 @@ plot(-EEZtrawldepths.plotdata$`Weighted avg. depth by mass`,
      xaxs = "i",
      yaxt = "n",
      xaxt = "n",
-     xlab = "Mass-weighted depth of EEZ trawled area (m)",
+     xlab = "Weighted mean depth of EEZ trawled area (m)",
      ylab = paste("Adjusted emissions estimate as fraction\nof original Sala et al. estimate"))
 
 # perform linear regression; plot
@@ -679,7 +679,7 @@ plot(-EEZtrawldepths.plotdata$`Weighted avg. depth by mass`,
      xaxs = "i",
      yaxt = "n",
      xaxt = "n",
-     xlab = "Mass-weighted depth of EEZ trawled area (m)",
+     xlab = "Weighted mean depth of EEZ trawled area (m)",
      ylab = paste("Adjusted estimate, % deviation from original\nSala et al. estimate\n(cumulative emissions after 30 years)"))
 
 # perform linear regression; plot
@@ -786,7 +786,45 @@ summary(EEZ_fit.alt)
 
 # Finally, a Table S1 with some relevant data
 
+# create table structure
 TableS1.years <- c(1,5,10,25,30,50,75,100,200)
-TableS1.numcols <- length(TableS1.years)+1
-TableS1.numrows <- (length(trawlEEZs)*3+3+3+3)
+TableS1.numcols <- 2+3*2+length(TableS1.years)
+TableS1.numrows <- 2+4+4+4+4+4+length(trawlEEZs)*4
 
+TableS1 <- as.data.frame(matrix(data = NA,
+                                nrow = TableS1.numrows,
+                                ncol = TableS1.numcols))
+                                     
+TableS1[sort(c(seq(4,TableS1.numrows,4),seq(5,TableS1.numrows,4),
+                         seq(6,TableS1.numrows,4))),2] <-
+rep(c("Original estimate (Sala et al.)","Adjusted estimate (this analysis)",
+                           "Percent deviation"),TableS1.numrows/4)
+
+TableS1[seq(3,TableS1.numrows,4),1] <- c("Global trawled ocean area, all depths",
+                                         "Global trawled ocean area, depths <= 200 m",
+                                         "Global trawled ocean area, depths <= 400 m",
+                                         "Global trawled ocean area, depths > 400 m",
+                                         "Global trawled ocean area, MLD >= bottom depth",
+                                         sort(trawlEEZs))
+
+TableS1[1,c(3,5,7,9)] <- c("Avg. landings from benthic trawling, 2009-2018",
+                           "Weighted mean depth of trawled area",
+                           "Fraction by mass of total est. global sediment C remineralization",
+                           "Cumulative emissions after years of continuous trawling (Pg CO2)")
+TableS1[2,c(3:8)] <- c("Mt biomass","Rank by EEZ",
+                       "m","Rank by EEZ",
+                       "—","Rank by EEZ")
+TableS1[2,9:ncol(TableS1)] <- TableS1.years
+
+# populate with data
+
+# landings data
+TableS1[seq(23,TableS1.numrows,4),3] <- formatC(signif(meanBenthicLandings_metrictons/10^6,digits=2), digits=2,format="fg", flag="#")[sort(trawlEEZs, index.return = TRUE)$ix]
+TableS1[seq(23,TableS1.numrows,4),4] <- order(meanBenthicLandings_metrictons/10^6, decreasing = T)[sort(trawlEEZs, index.return = TRUE)$ix]
+
+# weighted mean trawled area depth
+trawlDepthsforTable <- wt_avg_EEZtrawldepths$weighted_avg_Depth_m
+trawlDepthsforTable[trawlDepthsforTable==0] <- NA
+TableS1[seq(23,TableS1.numrows,4),5] <- round(-trawlDepthsforTable,digits=0)[sort(trawlEEZs, index.return = TRUE)$ix]
+TableS1[seq(23,TableS1.numrows,4),6] <- rank(trawlDepthsforTable, na.last = T)[sort(trawlEEZs, index.return = TRUE)$ix]
+TableS1[which(as.numeric(TableS1[,6])>length(trawlDepthsforTable)-sum(is.na(trawlDepthsforTable))),6] <- NA
