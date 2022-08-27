@@ -704,7 +704,7 @@ lines(EEZ_fit_predval.alt ~ EEZtrawldepths.depthinv, col = "light coral",
       lty = 1)
 
 text(-EEZtrawldepths.plotdata$`Weighted avg. depth by mass`+rel.sizeEEZpts*30-5,
-     EEZtrawldepths.plotdata$`Adjusted-Sala % deviation`+0.025,
+     EEZtrawldepths.plotdata$`Adjusted-Sala % deviation`+0.95,
      trawlEEZs[!(trawlEEZs %in% c("Guyana","Bangladesh","Pakistan","Myanmar"))],
      cex = 0.7,
      pos = 4)
@@ -735,6 +735,91 @@ legend(600, 0.95,
        bg = NULL,
        x.intersp = 3,
        y.intersp = c(3,2,1,1,1))
+
+dev.off() 
+
+# an inset for second alternate version
+# symbol size based on avg landing tonnage from benthic trawling,
+# and the y-axis using a different measure of deviation
+pdf("img_output/Fig3_alt2_inset.pdf",
+    width = 4.75, height = 2.5, # 90 mm = 3.54 in
+    bg = "white", pointsize = 7,
+    colormodel = "cmyk",
+    paper = "A4")
+
+lwd.thisplot = 0.75
+
+par(mar=c(3,5,1,10),
+    mgp=c(2,0.5,0),
+    lwd = lwd.thisplot,
+    xpd=TRUE)
+
+plot(-EEZtrawldepths.plotdata$`Weighted avg. depth by mass`,
+     EEZtrawldepths.plotdata$`Adjusted-Sala % deviation`,
+     lwd = lwd.thisplot,
+     pch = NA,
+     xlim = c(0,200),
+     ylim = rev(c(2,-30)),
+     yaxs = "i",
+     xaxs = "i",
+     yaxt = "n",
+     xaxt = "n",
+     xlab = "Weighted mean depth of EEZ trawled area (m)",
+     ylab = paste("Adjusted estimate, % deviation from original\nSala et al. estimate\n(cumulative emissions after 30 years)"))
+
+# perform linear regression; plot
+EEZtrawldepths.depthinv <- -EEZtrawldepths.plotdata[,1]
+EEZ_fit.alt <- lm(EEZtrawldepths.plotdata[,3] ~ EEZtrawldepths.depthinv)
+
+axis(side = 1, lwd = lwd.thisplot, tck = -0.02)
+axis(side = 2, lwd = lwd.thisplot, tck = -0.02)
+
+points(-EEZtrawldepths.plotdata$`Weighted avg. depth by mass`,
+       EEZtrawldepths.plotdata$`Adjusted-Sala % deviation`,
+       pch = 21,
+       lwd = lwd.thisplot,
+       col= "black",
+       bg = "lightgrey",
+       cex = as.numeric(rel.sizeEEZpts.landings))
+
+#add fitted regression line to scatterplot
+EEZ_fit_predval.alt <- predict(EEZ_fit.alt, data.frame(EEZtrawldepths.depthinv))
+lines(EEZ_fit_predval.alt ~ EEZtrawldepths.depthinv, col = "light coral",
+      lwd = 1,
+      lty = 1)
+
+text(-EEZtrawldepths.plotdata$`Weighted avg. depth by mass`+rel.sizeEEZpts*40-2,
+     EEZtrawldepths.plotdata$`Adjusted-Sala % deviation`+0.35,
+     trawlEEZs[!(trawlEEZs %in% c("Guyana","Bangladesh","Pakistan","Myanmar"))],
+     cex = 0.7,
+     pos = 4)
+# 
+# r2.alt = summary(EEZ_fit.alt)$adj.r.squared
+# my.p.alt = summary(EEZ_fit.alt)$coefficients[2,4]
+# 
+# rp = vector('expression',2)
+# rp[1] = substitute(expression(R^2 == MYVALUE), 
+#                    list(MYVALUE = format(r2.alt,dig=2)))[2]
+# rp[2] = substitute(expression(italic(p) == MYOTHERVALUE), 
+#                    list(MYOTHERVALUE = format(my.p.alt, scientific = FALSE, digits = 1)))[2]
+# 
+# legend('topright', legend = rp, bty = 'n',
+#        cex = 0.8)
+# 
+# # set up some symbol sizes for the legend
+# # will need to be moved in Illustrator later
+# leg.pchSizes <- c(5,2.5,1,0.5,0.25,.1)
+# 
+# legend(600, 0.95,
+#        legend = leg.pchSizes,
+#        title = paste("Avg. landings from\nbenthic trawling,\n2009-2018\n(Mt biomass)"),
+#        pch = 21,
+#        pt.bg = "lightgrey",
+#        pt.cex = leg.pchSizes,
+#        box.lty=0,
+#        bg = NULL,
+#        x.intersp = 3,
+#        y.intersp = c(3,2,1,1,1))
 
 dev.off() 
 
