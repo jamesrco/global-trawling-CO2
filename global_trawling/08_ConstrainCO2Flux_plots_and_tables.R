@@ -788,43 +788,126 @@ summary(EEZ_fit.alt)
 
 # create table structure
 TableS1.years <- c(1,5,10,25,30,50,75,100,200)
-TableS1.numcols <- 2+3*2+length(TableS1.years)
-TableS1.numrows <- 2+4+4+4+4+4+length(trawlEEZs)*4
+TableS1.numcols <- 3+3*2+length(TableS1.years)+3
+TableS1.numrows <- 3+4+4+4+4+4+4+length(trawlEEZs)*4
 
 TableS1 <- as.data.frame(matrix(data = NA,
                                 nrow = TableS1.numrows,
                                 ncol = TableS1.numcols))
                                      
-TableS1[sort(c(seq(4,TableS1.numrows,4),seq(5,TableS1.numrows,4),
-                         seq(6,TableS1.numrows,4))),2] <-
+TableS1[sort(c(seq(5,TableS1.numrows,4),seq(6,TableS1.numrows,4),
+                         seq(7,TableS1.numrows,4))),2] <-
 rep(c("Original estimate (Sala et al.)","Adjusted estimate (this analysis)",
                            "Percent deviation"),TableS1.numrows/4)
 
-TableS1[seq(3,TableS1.numrows,4),1] <- c("Global trawled ocean area, all depths",
-                                         "Global trawled ocean area, depths <= 200 m",
-                                         "Global trawled ocean area, depths <= 400 m",
-                                         "Global trawled ocean area, depths > 400 m",
-                                         "Global trawled ocean area, MLD >= bottom depth",
+TableS1[seq(4,TableS1.numrows,4),1] <- c("Global trawled ocean area, all depths",
+                                         "Global trawled ocean area, bottom depth║ <= 100 m",
+                                         "Global trawled ocean area, bottom depth║ <= max. MLD¶",
+                                         "Global trawled ocean area, bottom depth║ <= 200 m",
+                                         "Global trawled ocean area, bottom depth║ <= 400 m",
+                                         "Global trawled ocean area, bottom depth║ > 400 m",
                                          sort(trawlEEZs))
 
-TableS1[1,c(3,5,7,9)] <- c("Avg. landings from benthic trawling, 2009-2018",
-                           "Weighted mean depth of trawled area",
-                           "Fraction by mass of total est. global sediment C remineralization",
+TableS1[1,c(3,5,7,9)] <- c("Avg. landings from benthic trawling, 2009-2018*",
+                           "Weighted mean depth of area subjected to benthic trawling†",
+                           "Fraction by mass of total est. global sediment C remineralization‡",
                            "Cumulative emissions after years of continuous trawling (Pg CO2)")
-TableS1[2,c(3:8)] <- c("Mt biomass","Rank by EEZ",
-                       "m","Rank by EEZ",
-                       "—","Rank by EEZ")
-TableS1[2,9:ncol(TableS1)] <- TableS1.years
+TableS1[2,c(3:8)] <- c("Mt biomass","Rank by EEZ§",
+                       "m","Rank by EEZ§",
+                       "—","Rank by EEZ§")
+TableS1[2,c(9,11,12,13,14,16,17,18,19)] <- TableS1.years
+TableS1[3,c(9,11,12,13,14,16,17,18,19)] <- "Pg CO2"
+TableS1[3,c(10,15,20)] <- "Rank by EEZ§"
 
 # populate with data
 
 # landings data
-TableS1[seq(23,TableS1.numrows,4),3] <- formatC(signif(meanBenthicLandings_metrictons/10^6,digits=2), digits=2,format="fg", flag="#")[sort(trawlEEZs, index.return = TRUE)$ix]
-TableS1[seq(23,TableS1.numrows,4),4] <- order(meanBenthicLandings_metrictons/10^6, decreasing = T)[sort(trawlEEZs, index.return = TRUE)$ix]
+TableS1[seq(28,TableS1.numrows,4),3] <- formatC(signif(meanBenthicLandings_metrictons/10^6,digits=2), digits=2,format="fg", flag="#")[sort(trawlEEZs, index.return = TRUE)$ix]
+TableS1[seq(28,TableS1.numrows,4),4] <- order(meanBenthicLandings_metrictons/10^6, decreasing = T)[sort(trawlEEZs, index.return = TRUE)$ix]
 
 # weighted mean trawled area depth
 trawlDepthsforTable <- wt_avg_EEZtrawldepths$weighted_avg_Depth_m
 trawlDepthsforTable[trawlDepthsforTable==0] <- NA
-TableS1[seq(23,TableS1.numrows,4),5] <- round(-trawlDepthsforTable,digits=0)[sort(trawlEEZs, index.return = TRUE)$ix]
-TableS1[seq(23,TableS1.numrows,4),6] <- rank(trawlDepthsforTable, na.last = T)[sort(trawlEEZs, index.return = TRUE)$ix]
+TableS1[seq(28,TableS1.numrows,4),5] <- round(-trawlDepthsforTable,digits=0)[sort(trawlEEZs, index.return = TRUE)$ix]
+TableS1[seq(28,TableS1.numrows,4),6] <- rank(trawlDepthsforTable, na.last = T)[sort(trawlEEZs, index.return = TRUE)$ix]
 TableS1[which(as.numeric(TableS1[,6])>length(trawlDepthsforTable)-sum(is.na(trawlDepthsforTable))),6] <- NA
+
+# fraction total mass
+TableS1[4,7] <- formatC(signif(sum(sums_PgCO2, na.rm = T)/sum(sums_PgCO2, na.rm = T),digits=2), digits=2,format="fg", flag="#")
+TableS1[8,7] <- formatC(signif(sum(sums_PgCO2[34])/sum(sums_PgCO2, na.rm = T),digits=2), digits=2,format="fg", flag="#") # fraction CO2 efflux (by mass) in 0-100 m depth bin
+TableS1[12,7] <- formatC(signif(sum(Sala_CO2_efflux.df.nonZeroCO2$co2_efflux[which(MLDmatches.nonZero$annualmaxMLD_m>=(-Sala_CO2_efflux.df.nonZeroCO2$bottom_depth-10))])/
+                                  sum(Sala_CO2_efflux.df.nonZeroCO2$co2_efflux),digits=2), digits=2,format="fg", flag="#") # fraction CO2 efflux (by mass) where bottom depth <= max. MLD ± 10 m
+TableS1[16,7] <- formatC(signif(sum(sums_PgCO2[33:34])/sum(sums_PgCO2, na.rm = T),digits=2), digits=2,format="fg", flag="#") # fraction CO2 efflux (by mass) in 0-200 m depth bins
+TableS1[20,7] <- formatC(signif(sum(sums_PgCO2[31:34])/sum(sums_PgCO2, na.rm = T),digits=2), digits=2,format="fg", flag="#") # fraction CO2 efflux (by mass) in 0-400 m depth bins
+TableS1[24,7] <- formatC(signif(sum(sums_PgCO2[1:30], na.rm = T)/sum(sums_PgCO2, na.rm = T),digits=2), digits=2,format="fg", flag="#") # fraction CO2 efflux (by mass) originating in water depths > 400 m
+fractMassbyEEZforTable <- 
+  (adjCO2efflux_PgCO2_cumulative.byEEZ[1,40:74]/
+  adjCO2efflux_PgCO2_cumulative.byEEZ$unadjusted.PgCO2_to_atmos_cumulative_global_alldepths[1])[sort(trawlEEZs, index.return = TRUE)$ix]
+fractMassbyEEZforTable[fractMassbyEEZforTable==0] <- NA
+TableS1[seq(28,TableS1.numrows,4),7] <- formatC(signif(as.numeric(fractMassbyEEZforTable),digits=2), digits=2,format="fg", flag="#")
+TableS1[which(as.numeric(TableS1[,7])>length(fractMassbyEEZforTable)-sum(is.na(fractMassbyEEZforTable))),7] <- NA
+TableS1[seq(28,TableS1.numrows,4),8] <- as.integer(rank(-fractMassbyEEZforTable, na.last = T))
+TableS1[which(as.numeric(TableS1[,8])>length(fractMassbyEEZforTable)-sum(is.na(fractMassbyEEZforTable))),8] <- NA
+
+# cumulative emissions estimates
+
+# year data, without ranks first
+
+S1yearInsert.ind <- c(9,11,12,13,14,16,17,18,19)
+  
+for (i in 1:length(TableS1.years)) {
+  
+  thisYear <- TableS1.years[i]
+  thisCol <- S1yearInsert.ind[i]
+  
+  TableS1[c(5,seq(29,TableS1.numrows,4)),thisCol] <-
+    c(formatC(signif(as.numeric(adjCO2efflux_PgCO2_cumulative.byEEZ[thisYear,39]),digits=3), digits=3,format="fg", flag="#"),
+      formatC(signif(as.numeric(adjCO2efflux_PgCO2_cumulative.byEEZ[thisYear,40:74]),digits=3), digits=3,format="fg", flag="#")[sort(trawlEEZs, index.return = TRUE)$ix])
+  TableS1[which(as.numeric(TableS1[,thisCol])==0),thisCol] <- NA
+  
+  TableS1[c(6,seq(30,TableS1.numrows,4)),thisCol] <-
+    c(formatC(signif(as.numeric(adjCO2efflux_PgCO2_cumulative.byEEZ[thisYear,2]),digits=3), digits=3,format="fg", flag="#"),
+      formatC(signif(as.numeric(adjCO2efflux_PgCO2_cumulative.byEEZ[thisYear,3:37]),digits=3), digits=3,format="fg", flag="#")[sort(trawlEEZs, index.return = TRUE)$ix])
+  TableS1[which(as.numeric(TableS1[,thisCol])==0),thisCol] <- NA
+  
+  TableS1[7,thisCol] <-
+    formatC(signif(as.numeric(((adjCO2efflux_PgCO2_cumulative.byEEZ[thisYear,2]-adjCO2efflux_PgCO2_cumulative.byEEZ[thisYear,39])/
+                                 adjCO2efflux_PgCO2_cumulative.byEEZ[thisYear,39])*100)
+                   ,digits=2), digits=2,format="fg", flag="#")
+  TableS1[seq(31,TableS1.numrows,4),thisCol] <-
+    formatC(signif(as.numeric(((adjCO2efflux_PgCO2_cumulative.byEEZ[thisYear,3:37]-adjCO2efflux_PgCO2_cumulative.byEEZ[thisYear,40:74])/
+                                 adjCO2efflux_PgCO2_cumulative.byEEZ[thisYear,40:74])*100)
+                   ,digits=2), digits=2,format="fg", flag="#")[sort(trawlEEZs, index.return = TRUE)$ix]
+  
+}
+
+# now do the rank data
+
+S1rankInsert.ind <- c(10,15,20)
+rankYears <- c(1,30,200)
+
+for (i in 1:length(rankYears)) {
+  
+  thisYear <- rankYears[i]
+  thisCol <- S1rankInsert.ind[i]
+  
+  TableS1[seq(29,TableS1.numrows,4),thisCol] <-
+    as.integer(rank(-adjCO2efflux_PgCO2_cumulative.byEEZ[thisYear,40:74], na.last = T))[sort(trawlEEZs, index.return = TRUE)$ix]
+  TableS1[which(as.numeric(TableS1[,thisCol])>length(fractMassbyEEZforTable)-sum(is.na(fractMassbyEEZforTable))),thisCol] <- NA
+  
+  TableS1[seq(30,TableS1.numrows,4),thisCol] <-
+    as.integer(rank(-adjCO2efflux_PgCO2_cumulative.byEEZ[thisYear,3:37], na.last = T))[sort(trawlEEZs, index.return = TRUE)$ix]
+  TableS1[which(as.numeric(TableS1[,thisCol])>length(fractMassbyEEZforTable)-sum(is.na(fractMassbyEEZforTable))),thisCol] <- NA
+  
+  TableS1[seq(31,TableS1.numrows,4),thisCol] <-
+    rank(as.numeric(((adjCO2efflux_PgCO2_cumulative.byEEZ[thisYear,3:37]-adjCO2efflux_PgCO2_cumulative.byEEZ[thisYear,40:74])/
+                       adjCO2efflux_PgCO2_cumulative.byEEZ[thisYear,40:74])*100), na.last = TRUE)[sort(trawlEEZs, index.return = TRUE)$ix]
+  TableS1[which(as.numeric(TableS1[,thisCol])>length(fractMassbyEEZforTable)-sum(is.na(fractMassbyEEZforTable))),thisCol] <- NA
+  
+}
+
+# now, save the table
+
+write.csv(TableS1, file = "data/global_trawling/derived/output/TableS1_raw.csv",
+          row.names = FALSE, col.names = FALSE, na = "")
+

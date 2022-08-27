@@ -297,13 +297,13 @@ EEZtrawldepths.plotdata <- EEZtrawldepths.plotdata[!(trawlEEZs %in% c("Guyana","
 # make points of relative size
 # one set, based on fraction of total est. global sediment remineralization
 rel.sizeEEZpts.log <-
-  -1/log10(adjCO2efflux_PgCO2_cumulative.byEEZ[1,3:37]/
+  -1/log10(adjCO2efflux_PgCO2_cumulative.byEEZ[1,40:74]/
              adjCO2efflux_PgCO2_cumulative.byEEZ$adjusted.PgCO2_to_atmos_cumulative_global_alldepths[1])
 rel.sizeEEZpts.log <-
   rel.sizeEEZpts.log[!(trawlEEZs %in% c("Guyana","Bangladesh","Pakistan","Myanmar"))]
 
 rel.sizeEEZpts <-
-  adjCO2efflux_PgCO2_cumulative.byEEZ[1,3:37]/
+  adjCO2efflux_PgCO2_cumulative.byEEZ[1,40:74]/
   adjCO2efflux_PgCO2_cumulative.byEEZ$adjusted.PgCO2_to_atmos_cumulative_global_alldepths[1]
 rel.sizeEEZpts <-
   rel.sizeEEZpts[!(trawlEEZs %in% c("Guyana","Bangladesh","Pakistan","Myanmar"))]
