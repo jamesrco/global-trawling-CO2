@@ -132,6 +132,7 @@ for (i in 1:nrow(predicted.PgCO2_per_year_to_atmos)) {
 
 write.csv(predicted.PgCO2_per_year_to_atmos, file = "data/global_trawling/derived/output/adjCO2efflux_global_PgCO2_yr.csv",
           row.names = FALSE)
+# predicted.PgCO2_per_year_to_atmos <- read.csv("data/global_trawling/derived/output/adjCO2efflux_global_PgCO2_yr.csv") 
 
 # now we can make time-integrated estimates of total emissions to the atmosphere
 
@@ -149,7 +150,7 @@ write.csv(predicted.PgCO2_per_year_to_atmos, file = "data/global_trawling/derive
 
 adjCO2efflux_PgCO2_cumulative <- as.data.frame(matrix(data = NA, 
                                                           nrow = 200,
-                                                          ncol = 8))
+                                                          ncol = 9))
 colnames(adjCO2efflux_PgCO2_cumulative) = c("Year",
                                             "PgCO2_to_atmos_cumulative_global_alldepths",
                                             "PgCO2_to_atmos_cumulative_global_200m_less",
@@ -157,7 +158,8 @@ colnames(adjCO2efflux_PgCO2_cumulative) = c("Year",
                                             "PgCO2_to_atmos_cumulative_global_400m_greater",
                                             "PgCO2_to_atmos_cumulative_global_alldepths_unadjusted",
                                             "PgCO2_to_atmos_cumulative_global_200m_greater_unadjusted",
-                                            "PgCO2_to_atmos_cumulative_global_400m_greater_unadjusted")
+                                            "PgCO2_to_atmos_cumulative_global_400m_greater_unadjusted",
+                                            "PgCO2_to_atmos_cumulative_global_200m_less_unadjusted")
 adjCO2efflux_PgCO2_cumulative[,1] <- unlist(seqFracYears.raw)[1:200]
 
 for (i in 1:nrow(adjCO2efflux_PgCO2_cumulative)) {
@@ -188,6 +190,10 @@ for (i in 1:nrow(adjCO2efflux_PgCO2_cumulative)) {
              Sala_et_al_trawlTiming_results.raw$C_remin[1]))
   adjCO2efflux_PgCO2_cumulative[i,8] <- 
     sum(sum(sums_PgCO2[1:30], na.rm = T)*
+          (Sala_et_al_trawlTiming_results.raw$C_remin[1:i]/
+             Sala_et_al_trawlTiming_results.raw$C_remin[1]))
+  adjCO2efflux_PgCO2_cumulative[i,9] <- 
+    sum(sum(sums_PgCO2[33:34], na.rm = T)*
           (Sala_et_al_trawlTiming_results.raw$C_remin[1:i]/
              Sala_et_al_trawlTiming_results.raw$C_remin[1]))
   }

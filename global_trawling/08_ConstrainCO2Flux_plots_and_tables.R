@@ -101,12 +101,12 @@ sum(Sala_CO2_efflux.df.nonZeroCO2$co2_efflux[which(MLDmatches.nonZero$annualmaxM
 # 3 plots that will be panels a-c
 
 pdf("img_output/Fig2a.pdf",
-    width = 3.54, height = 2.5, # 90 mm = 3.54 in
-    bg = "white", pointsize = 7,
+    width = 1.77, height = 1.25, # 90 mm = 3.54 in
+    bg = "white", pointsize = 6,
     colormodel = "cmyk",
     paper = "A4")
 
-lwd.thisplot = 0.75
+lwd.thisplot = 0.5
 
 par(mar=c(3,5,1,1),
     mgp=c(2,0.5,0),
@@ -139,12 +139,50 @@ legend("topleft",
 dev.off() 
 
 pdf("img_output/Fig2b.pdf",
-    width = 3.54, height = 2.5, # 90 mm = 3.54 in
-    bg = "white", pointsize = 7,
+    width = 1.77, height = 1.25, # 90 mm = 3.54 in
+    bg = "white", pointsize = 6,
     colormodel = "cmyk",
     paper = "A4")
 
-lwd.thisplot = 0.75
+lwd.thisplot = 0.5
+
+par(mar=c(3,5,1,1),
+    mgp=c(2,0.5,0),
+    lwd = lwd.thisplot)
+
+plot(adjCO2efflux_PgCO2_cumulative$Year,
+     adjCO2efflux_PgCO2_cumulative$PgCO2_to_atmos_cumulative_global_200m_less_unadjusted,
+     type = "l", col = "darkgrey", lty = 5, lwd = lwd.thisplot,
+     xlab="Year", xlim = c(0,30), ylim = c(0,17),
+     yaxt = "n",
+     xaxt = "n",
+     yaxs = "i",
+     xaxs = "i",
+     ylab = paste("Pg CO2 emitted to atmosphere\n(cumulative, depths <= 200 m)"))
+
+axis(side = 1, lwd = lwd.thisplot, tck = -0.02)
+axis(side = 2, lwd = lwd.thisplot, tck = -0.02)
+
+# add adjusted estimate
+lines(adjCO2efflux_PgCO2_cumulative$Year, adjCO2efflux_PgCO2_cumulative$PgCO2_to_atmos_cumulative_global_200m_less,
+      col = "black", lwd = lwd.thisplot)
+
+# add legend
+legend("topleft",
+       legend = c("Sala et al. estimate","Adjusted estimate"),
+       col=c("darkgrey", "black"), lty=c(5,1), lwd = lwd.thisplot,
+       box.lty=0,
+       bg = NULL)
+
+dev.off() 
+
+pdf("img_output/Fig2c.pdf",
+    width = 1.77, height = 1.25, # 90 mm = 3.54 in
+    bg = "white", pointsize = 6,
+    colormodel = "cmyk",
+    paper = "A4")
+
+lwd.thisplot = 0.5
 
 par(mar=c(3,5,1,1),
     mgp=c(2,0.5,0),
@@ -176,13 +214,13 @@ legend("topleft",
 
 dev.off() 
 
-pdf("img_output/Fig2c.pdf",
-    width = 3.54, height = 2.5, # 90 mm = 3.54 in
-    bg = "white", pointsize = 7,
+pdf("img_output/Fig2d.pdf",
+    width = 1.77, height = 1.25, # 90 mm = 3.54 in
+    bg = "white", pointsize = 6,
     colormodel = "cmyk",
     paper = "A4")
 
-lwd.thisplot = 0.75
+lwd.thisplot = 0.5
 
 par(mar=c(3,5,1,1),
     mgp=c(2,0.5,0),
@@ -214,13 +252,13 @@ legend("topleft",
 
 dev.off() 
 
-pdf("img_output/Fig2d.pdf",
-    width = 3.54, height = 2.5, # 90 mm = 3.54 in
-    bg = "white", pointsize = 7,
+pdf("img_output/Fig2e.pdf",
+    width = 1.77, height = 1.25, # 90 mm = 3.54 in
+    bg = "white", pointsize = 6,
     colormodel = "cmyk",
     paper = "A4")
 
-lwd.thisplot = 0.75
+lwd.thisplot = 0.5
 
 par(mar=c(3,5,1,1),
     mgp=c(2,0.5,0),
@@ -252,13 +290,13 @@ legend("topleft",
 
 dev.off() 
 
-pdf("img_output/Fig2e.pdf",
-    width = 3.54, height = 2.5, # 90 mm = 3.54 in
-    bg = "white", pointsize = 7,
+pdf("img_output/Fig2f.pdf",
+    width = 1.77, height = 1.25, # 90 mm = 3.54 in
+    bg = "white", pointsize = 6,
     colormodel = "cmyk",
     paper = "A4")
 
-lwd.thisplot = 0.75
+lwd.thisplot = 0.5
 
 par(mar=c(3,5,1,1),
     mgp=c(2,0.5,0),
@@ -345,6 +383,44 @@ par(mar=c(3,5,1,1),
     lwd = lwd.thisplot)
 
 plot(adjCO2efflux_PgCO2_cumulative$Year,
+     adjCO2efflux_PgCO2_cumulative$PgCO2_to_atmos_cumulative_global_200m_less_unadjusted,
+     type = "l", col = "darkgrey", lty = 5, lwd = lwd.thisplot,
+     xlab="Year", xlim = c(0,200), ylim = c(0,105),
+     yaxt = "n",
+     xaxt = "n",
+     yaxs = "i",
+     xaxs = "i",
+     ylab = paste("Pg CO2 emitted to atmosphere\n(cumulative, depths <= 200 m)"))
+
+axis(side = 1, lwd = lwd.thisplot, tck = -0.02)
+axis(side = 2, lwd = lwd.thisplot, tck = -0.02)
+
+# add adjusted estimate
+lines(adjCO2efflux_PgCO2_cumulative$Year, adjCO2efflux_PgCO2_cumulative$PgCO2_to_atmos_cumulative_global_200m_less,
+      col = "black", lwd = lwd.thisplot)
+
+# add legend
+legend("topleft",
+       legend = c("Sala et al. estimate","Adjusted estimate"),
+       col=c("darkgrey", "black"), lty=c(5,1), lwd = lwd.thisplot,
+       box.lty=0,
+       bg = NULL)
+
+dev.off() 
+
+pdf("img_output/FigS1c.pdf",
+    width = 3.54, height = 2.5, # 90 mm = 3.54 in
+    bg = "white", pointsize = 7,
+    colormodel = "cmyk",
+    paper = "A4")
+
+lwd.thisplot = 0.75
+
+par(mar=c(3,5,1,1),
+    mgp=c(2,0.5,0),
+    lwd = lwd.thisplot)
+
+plot(adjCO2efflux_PgCO2_cumulative$Year,
      adjCO2efflux_PgCO2_cumulative$PgCO2_to_atmos_cumulative_global_200m_greater_unadjusted,
      type = "l", col = "darkgrey", lty = 5, lwd = lwd.thisplot,
      xlab="Year", xlim = c(0,200), ylim = c(0,27),
@@ -370,7 +446,7 @@ legend("topleft",
 
 dev.off() 
 
-pdf("img_output/FigS1c.pdf",
+pdf("img_output/FigS1d.pdf",
     width = 3.54, height = 2.5, # 90 mm = 3.54 in
     bg = "white", pointsize = 7,
     colormodel = "cmyk",
@@ -408,7 +484,7 @@ legend("topleft",
 
 dev.off()
 
-pdf("img_output/FigS1d.pdf",
+pdf("img_output/FigS1e.pdf",
     width = 3.54, height = 2.5, # 90 mm = 3.54 in
     bg = "white", pointsize = 7,
     colormodel = "cmyk",
@@ -446,7 +522,7 @@ legend("topleft",
 
 dev.off() 
 
-pdf("img_output/FigS1e.pdf",
+pdf("img_output/FigS1f.pdf",
     width = 3.54, height = 2.5, # 90 mm = 3.54 in
     bg = "white", pointsize = 7,
     colormodel = "cmyk",
@@ -874,7 +950,7 @@ summary(EEZ_fit.alt)
 # create table structure
 TableS1.years <- c(1,5,10,25,30,50,75,100,200)
 TableS1.numcols <- 3+3*2+length(TableS1.years)+3
-TableS1.numrows <- 3+4+4+4+4+4+4+length(trawlEEZs)*4
+TableS1.numrows <- 3+4+4+4+4+4+4+4+length(trawlEEZs)*4
 
 TableS1 <- as.data.frame(matrix(data = NA,
                                 nrow = TableS1.numrows,
@@ -888,6 +964,7 @@ rep(c("Original estimate (Sala et al.)","Adjusted estimate (this analysis)",
 TableS1[seq(4,TableS1.numrows,4),1] <- c("Global trawled ocean area, all depths",
                                          "Global trawled ocean area, bottom depth║ <= 100 m",
                                          "Global trawled ocean area, bottom depth║ <= max. MLD¶",
+                                         "Global trawled ocean area, bottom depth║ > 200 m",
                                          "Global trawled ocean area, bottom depth║ <= 200 m",
                                          "Global trawled ocean area, bottom depth║ <= 400 m",
                                          "Global trawled ocean area, bottom depth║ > 400 m",
@@ -907,14 +984,14 @@ TableS1[3,c(10,15,20)] <- "Rank by EEZ§"
 # populate with data
 
 # landings data
-TableS1[seq(28,TableS1.numrows,4),3] <- formatC(signif(meanBenthicLandings_metrictons/10^6,digits=2), digits=2,format="fg", flag="#")[sort(trawlEEZs, index.return = TRUE)$ix]
-TableS1[seq(28,TableS1.numrows,4),4] <- order(meanBenthicLandings_metrictons/10^6, decreasing = T)[sort(trawlEEZs, index.return = TRUE)$ix]
+TableS1[seq(32,TableS1.numrows,4),3] <- formatC(signif(meanBenthicLandings_metrictons/10^6,digits=2), digits=2,format="fg", flag="#")[sort(trawlEEZs, index.return = TRUE)$ix]
+TableS1[seq(32,TableS1.numrows,4),4] <- order(meanBenthicLandings_metrictons/10^6, decreasing = T)[sort(trawlEEZs, index.return = TRUE)$ix]
 
 # weighted mean trawled area depth
 trawlDepthsforTable <- wt_avg_EEZtrawldepths$weighted_avg_Depth_m
 trawlDepthsforTable[trawlDepthsforTable==0] <- NA
-TableS1[seq(28,TableS1.numrows,4),5] <- round(-trawlDepthsforTable,digits=0)[sort(trawlEEZs, index.return = TRUE)$ix]
-TableS1[seq(28,TableS1.numrows,4),6] <- rank(trawlDepthsforTable, na.last = T)[sort(trawlEEZs, index.return = TRUE)$ix]
+TableS1[seq(32,TableS1.numrows,4),5] <- round(-trawlDepthsforTable,digits=0)[sort(trawlEEZs, index.return = TRUE)$ix]
+TableS1[seq(32,TableS1.numrows,4),6] <- rank(trawlDepthsforTable, na.last = T)[sort(trawlEEZs, index.return = TRUE)$ix]
 TableS1[which(as.numeric(TableS1[,6])>length(trawlDepthsforTable)-sum(is.na(trawlDepthsforTable))),6] <- NA
 
 # fraction total mass
@@ -922,16 +999,17 @@ TableS1[4,7] <- formatC(signif(sum(sums_PgCO2, na.rm = T)/sum(sums_PgCO2, na.rm 
 TableS1[8,7] <- formatC(signif(sum(sums_PgCO2[34])/sum(sums_PgCO2, na.rm = T),digits=2), digits=2,format="fg", flag="#") # fraction CO2 efflux (by mass) in 0-100 m depth bin
 TableS1[12,7] <- formatC(signif(sum(Sala_CO2_efflux.df.nonZeroCO2$co2_efflux[which(MLDmatches.nonZero$annualmaxMLD_m>=(-Sala_CO2_efflux.df.nonZeroCO2$bottom_depth-10))])/
                                   sum(Sala_CO2_efflux.df.nonZeroCO2$co2_efflux),digits=2), digits=2,format="fg", flag="#") # fraction CO2 efflux (by mass) where bottom depth <= max. MLD ± 10 m
-TableS1[16,7] <- formatC(signif(sum(sums_PgCO2[33:34])/sum(sums_PgCO2, na.rm = T),digits=2), digits=2,format="fg", flag="#") # fraction CO2 efflux (by mass) in 0-200 m depth bins
-TableS1[20,7] <- formatC(signif(sum(sums_PgCO2[31:34])/sum(sums_PgCO2, na.rm = T),digits=2), digits=2,format="fg", flag="#") # fraction CO2 efflux (by mass) in 0-400 m depth bins
-TableS1[24,7] <- formatC(signif(sum(sums_PgCO2[1:30], na.rm = T)/sum(sums_PgCO2, na.rm = T),digits=2), digits=2,format="fg", flag="#") # fraction CO2 efflux (by mass) originating in water depths > 400 m
+TableS1[16,7] <- formatC(signif(sum(sums_PgCO2[1:32], na.rm = T)/sum(sums_PgCO2, na.rm = T),digits=2), digits=2,format="fg", flag="#") # fraction CO2 efflux (by mass) originating in water depths > 200 m
+TableS1[20,7] <- formatC(signif(sum(sums_PgCO2[33:34])/sum(sums_PgCO2, na.rm = T),digits=2), digits=2,format="fg", flag="#") # fraction CO2 efflux (by mass) in 0-200 m depth bins
+TableS1[24,7] <- formatC(signif(sum(sums_PgCO2[31:34])/sum(sums_PgCO2, na.rm = T),digits=2), digits=2,format="fg", flag="#") # fraction CO2 efflux (by mass) in 0-400 m depth bins
+TableS1[28,7] <- formatC(signif(sum(sums_PgCO2[1:30], na.rm = T)/sum(sums_PgCO2, na.rm = T),digits=2), digits=2,format="fg", flag="#") # fraction CO2 efflux (by mass) originating in water depths > 400 m
 fractMassbyEEZforTable <- 
   (adjCO2efflux_PgCO2_cumulative.byEEZ[1,40:74]/
   adjCO2efflux_PgCO2_cumulative.byEEZ$unadjusted.PgCO2_to_atmos_cumulative_global_alldepths[1])[sort(trawlEEZs, index.return = TRUE)$ix]
 fractMassbyEEZforTable[fractMassbyEEZforTable==0] <- NA
-TableS1[seq(28,TableS1.numrows,4),7] <- formatC(signif(as.numeric(fractMassbyEEZforTable),digits=2), digits=2,format="fg", flag="#")
+TableS1[seq(32,TableS1.numrows,4),7] <- formatC(signif(as.numeric(fractMassbyEEZforTable),digits=2), digits=2,format="fg", flag="#")
 TableS1[which(as.numeric(TableS1[,7])>length(fractMassbyEEZforTable)-sum(is.na(fractMassbyEEZforTable))),7] <- NA
-TableS1[seq(28,TableS1.numrows,4),8] <- as.integer(rank(-fractMassbyEEZforTable, na.last = T))
+TableS1[seq(32,TableS1.numrows,4),8] <- as.integer(rank(-fractMassbyEEZforTable, na.last = T))
 TableS1[which(as.numeric(TableS1[,8])>length(fractMassbyEEZforTable)-sum(is.na(fractMassbyEEZforTable))),8] <- NA
 
 # cumulative emissions estimates
@@ -945,12 +1023,12 @@ for (i in 1:length(TableS1.years)) {
   thisYear <- TableS1.years[i]
   thisCol <- S1yearInsert.ind[i]
   
-  TableS1[c(5,seq(29,TableS1.numrows,4)),thisCol] <-
+  TableS1[c(5,seq(33,TableS1.numrows,4)),thisCol] <-
     c(formatC(signif(as.numeric(adjCO2efflux_PgCO2_cumulative.byEEZ[thisYear,39]),digits=3), digits=3,format="fg", flag="#"),
       formatC(signif(as.numeric(adjCO2efflux_PgCO2_cumulative.byEEZ[thisYear,40:74]),digits=3), digits=3,format="fg", flag="#")[sort(trawlEEZs, index.return = TRUE)$ix])
   TableS1[which(as.numeric(TableS1[,thisCol])==0),thisCol] <- NA
   
-  TableS1[c(6,seq(30,TableS1.numrows,4)),thisCol] <-
+  TableS1[c(6,seq(34,TableS1.numrows,4)),thisCol] <-
     c(formatC(signif(as.numeric(adjCO2efflux_PgCO2_cumulative.byEEZ[thisYear,2]),digits=3), digits=3,format="fg", flag="#"),
       formatC(signif(as.numeric(adjCO2efflux_PgCO2_cumulative.byEEZ[thisYear,3:37]),digits=3), digits=3,format="fg", flag="#")[sort(trawlEEZs, index.return = TRUE)$ix])
   TableS1[which(as.numeric(TableS1[,thisCol])==0),thisCol] <- NA
@@ -959,10 +1037,42 @@ for (i in 1:length(TableS1.years)) {
     formatC(signif(as.numeric(((adjCO2efflux_PgCO2_cumulative.byEEZ[thisYear,2]-adjCO2efflux_PgCO2_cumulative.byEEZ[thisYear,39])/
                                  adjCO2efflux_PgCO2_cumulative.byEEZ[thisYear,39])*100)
                    ,digits=2), digits=2,format="fg", flag="#")
-  TableS1[seq(31,TableS1.numrows,4),thisCol] <-
+  TableS1[seq(35,TableS1.numrows,4),thisCol] <-
     formatC(signif(as.numeric(((adjCO2efflux_PgCO2_cumulative.byEEZ[thisYear,3:37]-adjCO2efflux_PgCO2_cumulative.byEEZ[thisYear,40:74])/
                                  adjCO2efflux_PgCO2_cumulative.byEEZ[thisYear,40:74])*100)
                    ,digits=2), digits=2,format="fg", flag="#")[sort(trawlEEZs, index.return = TRUE)$ix]
+  
+  # bottom depth bins
+  
+  # depths <= 200 m
+  TableS1[21,thisCol] <-
+    c(formatC(signif(as.numeric(adjCO2efflux_PgCO2_cumulative[thisYear,9]),digits=3), digits=3,format="fg", flag="#"))
+  TableS1[22,thisCol] <-
+    c(formatC(signif(as.numeric(adjCO2efflux_PgCO2_cumulative[thisYear,3]),digits=3), digits=3,format="fg", flag="#"))
+  TableS1[23,thisCol] <-
+    formatC(signif(as.numeric(((adjCO2efflux_PgCO2_cumulative[thisYear,3]-adjCO2efflux_PgCO2_cumulative[thisYear,9])/
+                                 adjCO2efflux_PgCO2_cumulative[thisYear,9])*100)
+                   ,digits=2), digits=2,format="fg", flag="#")
+
+  # depths > 200 m
+  TableS1[17,thisCol] <-
+    c(formatC(signif(as.numeric(adjCO2efflux_PgCO2_cumulative[thisYear,7]),digits=3), digits=3,format="fg", flag="#"))
+  TableS1[18,thisCol] <-
+    c(formatC(signif(as.numeric(adjCO2efflux_PgCO2_cumulative[thisYear,4]),digits=3), digits=3,format="fg", flag="#"))
+  TableS1[19,thisCol] <-
+    formatC(signif(as.numeric(((adjCO2efflux_PgCO2_cumulative[thisYear,4]-adjCO2efflux_PgCO2_cumulative[thisYear,7])/
+                                 adjCO2efflux_PgCO2_cumulative[thisYear,7])*100)
+                   ,digits=2), digits=2,format="fg", flag="#")
+  
+  # depths > 400 m
+  TableS1[29,thisCol] <-
+    c(formatC(signif(as.numeric(adjCO2efflux_PgCO2_cumulative[thisYear,8]),digits=3), digits=3,format="fg", flag="#"))
+  TableS1[30,thisCol] <-
+    c(formatC(signif(as.numeric(adjCO2efflux_PgCO2_cumulative[thisYear,5]),digits=3), digits=3,format="fg", flag="#"))
+  TableS1[31,thisCol] <-
+    formatC(signif(as.numeric(((adjCO2efflux_PgCO2_cumulative[thisYear,5]-adjCO2efflux_PgCO2_cumulative[thisYear,8])/
+                                 adjCO2efflux_PgCO2_cumulative[thisYear,8])*100)
+                   ,digits=2), digits=2,format="fg", flag="#")
   
 }
 
@@ -976,15 +1086,15 @@ for (i in 1:length(rankYears)) {
   thisYear <- rankYears[i]
   thisCol <- S1rankInsert.ind[i]
   
-  TableS1[seq(29,TableS1.numrows,4),thisCol] <-
+  TableS1[seq(33,TableS1.numrows,4),thisCol] <-
     as.integer(rank(-adjCO2efflux_PgCO2_cumulative.byEEZ[thisYear,40:74], na.last = T))[sort(trawlEEZs, index.return = TRUE)$ix]
   TableS1[which(as.numeric(TableS1[,thisCol])>length(fractMassbyEEZforTable)-sum(is.na(fractMassbyEEZforTable))),thisCol] <- NA
   
-  TableS1[seq(30,TableS1.numrows,4),thisCol] <-
+  TableS1[seq(34,TableS1.numrows,4),thisCol] <-
     as.integer(rank(-adjCO2efflux_PgCO2_cumulative.byEEZ[thisYear,3:37], na.last = T))[sort(trawlEEZs, index.return = TRUE)$ix]
   TableS1[which(as.numeric(TableS1[,thisCol])>length(fractMassbyEEZforTable)-sum(is.na(fractMassbyEEZforTable))),thisCol] <- NA
   
-  TableS1[seq(31,TableS1.numrows,4),thisCol] <-
+  TableS1[seq(35,TableS1.numrows,4),thisCol] <-
     rank(as.numeric(((adjCO2efflux_PgCO2_cumulative.byEEZ[thisYear,3:37]-adjCO2efflux_PgCO2_cumulative.byEEZ[thisYear,40:74])/
                        adjCO2efflux_PgCO2_cumulative.byEEZ[thisYear,40:74])*100), na.last = TRUE)[sort(trawlEEZs, index.return = TRUE)$ix]
   TableS1[which(as.numeric(TableS1[,thisCol])>length(fractMassbyEEZforTable)-sum(is.na(fractMassbyEEZforTable))),thisCol] <- NA
