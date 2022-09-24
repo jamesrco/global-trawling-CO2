@@ -1106,3 +1106,14 @@ for (i in 1:length(rankYears)) {
 write.csv(TableS1, file = "data/global_trawling/derived/output/TableS1_raw.csv",
           row.names = FALSE, col.names = FALSE, na = "")
 
+# also, a few calculations for the GBC review
+
+# mean annual flux from seds to atmosphere for first 200 y
+
+# global
+mean(predicted.PgCO2_per_year_to_atmos.byEEZ$PgCO2_per_year_to_atmos_global_all_depths[1:200])
+# [1] 1.386013
+
+# just China
+mean(predicted.PgCO2_per_year_to_atmos.byEEZ$China[1:200])
+# [1] 0.7643939

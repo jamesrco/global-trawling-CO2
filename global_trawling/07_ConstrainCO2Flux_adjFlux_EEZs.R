@@ -198,6 +198,7 @@ for (i in 1:nrow(predicted.PgCO2_per_year_to_atmos.byEEZ)) {
 
 write.csv(predicted.PgCO2_per_year_to_atmos.byEEZ, file = "data/global_trawling/derived/output/adjCO2efflux_global_PgCO2_yr_byEEZ.csv",
           row.names = FALSE)
+# predicted.PgCO2_per_year_to_atmos.byEEZ <- read.csv(file = "data/global_trawling/derived/output/adjCO2efflux_global_PgCO2_yr_byEEZ.csv")
 
 # second, cumulative calculation
 
