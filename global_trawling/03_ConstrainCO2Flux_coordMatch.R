@@ -14,7 +14,7 @@
 # set the working directory; create directory for output
 
 setwd("~/global-trawling-CO2") # for AWS
-dir.create("data/global_trawling/derived/output")
+dir.create("data/global_trawling/derived/output_v2")
 
 # libraries (if not already loaded)
 
@@ -27,6 +27,9 @@ library(raster) # assumes you have some version of GDAL up and running, and
 library(data.table) # needs to be installed first
 library(parallel) # part of base; doesn't need to be installed
 library(R.matlab) # to read .mat file
+library(geodist) # calculate distance cheaply
+library(pbapply) # parallelize distance calc
+library(parallel) # parallelize distance calc
 
 # now that we have (more or less) apples to oranges, can find best coordinate
 # match for each point in the CO2 flux dataset
@@ -143,6 +146,47 @@ time1 <- Sys.time()
 print(time1 - time0)
 
 # # ******************************************************************************
+# # mrc approach: geodist and pbapply
+# # ******************************************************************************
+
+#relevant dataframes
+# Siegel_fseq.coords.dt.oceanOnly # x, y, ind, 10442 x 3
+# Sala_CO2_efflux.coords.nonZero.dt # x, y, 6864846 x 2
+
+salan=data.matrix(Sala_CO2_efflux.coords.nonZero.dt)
+
+#each row as list for parallel ops, remove cruise, date
+salanl=lapply(seq_len(nrow(salan)), function(i) salan[i,])
+
+# #get all combinations of cytograms
+# nnn<-t(combn(1:nrow(dist1hbn),2))
+# print('start wass')
+# print(date())
+
+#parlapply with progress bar
+# https://cran.r-project.org/web/packages/pbapply/pbapply.pdf
+#100 with progress bar, run 2
+#   user  system elapsed
+# 1.241   0.107  61.251
+# nnnl=lapply(seq_len(nrow(nnn)), function(i) nnn[i,])
+
+no_cores <- detectCores() - 1
+cl <- makeCluster(no_cores)
+clusterEvalQ(cl, library(geodist))
+parallel::clusterExport(cl, "Siegel_fseq.coords.dt.oceanOnly")
+
+pbo = pboptions(type="txt")
+siegel_ind <-pblapply(salanl, function(i) {
+  which.min(geodist(i,Siegel_fseq.coords.dt.oceanOnly, measure = "haversine"))
+}, cl = cl)
+
+stopCluster(cl)
+
+print('end distance')
+print(date())
+
+coord.matchesNonZero <- Siegel_fseq.coords.dt.oceanOnly[unlist(siegel_ind),]
+# # ******************************************************************************
 # # second approach: using data.table and apply to take advantage of parallelization
 # # ******************************************************************************
 # 
@@ -212,7 +256,7 @@ print(time1 - time0)
 # assign names, save output
 
 colnames(coord.matchesNonZero) <- c("nrow","ind","x","y")
-save(coord.matchesNonZero, file = "data/global_trawling/derived/output/coord.matches.NonZero.RData")
+save(coord.matchesNonZero, file = "data/global_trawling/derived/output_v2/coord.matches.NonZero.RData")
 
 # now, we can do some depth matching; ultimate goal: find nearest modeled depth in
 # the OCIM model (from Siegel et al) to the ocean bottom depth at the locations of
