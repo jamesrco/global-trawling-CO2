@@ -10,7 +10,7 @@
 
 # set the working directory; create directory for output
 
-setwd("~/Code/global-trawling-CO2/")
+setwd("~/Documents/GitHub/global-trawling-CO2/")
 
 # libraries
 

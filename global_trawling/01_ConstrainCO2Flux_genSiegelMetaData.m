@@ -39,13 +39,13 @@ bottom_depth = sum(VOL.*MASK,3)./AREA(:,:,1); % depth of the ocean at each water
 % time steps, lat and long,  list of depths in the model domain, and bottom
 % depth for each grid cell
 
-writematrix(MASK(:,:,1),'/Users/jamesrco/Code/global-trawling-CO2/data/global_trawling/derived/benthic_seqfractions/mask_surface.csv')
-writematrix(time,'/Users/jamesrco/Code/global-trawling-CO2/data/global_trawling/derived/benthic_seqfractions/model_timesteps.csv')
-writematrix(DEPTH(1,1,:),'/Users/jamesrco/Code/global-trawling-CO2/data/global_trawling/derived/benthic_seqfractions/OCIM_modelDepths.csv')
-writematrix(LAT(:,1,1),'/Users/jamesrco/Code/global-trawling-CO2/data/global_trawling/derived/benthic_seqfractions/lat_degN.csv')
-writematrix(LON(1,:,1),'/Users/jamesrco/Code/global-trawling-CO2/data/global_trawling/derived/benthic_seqfractions/long_degE.csv')
-writematrix(bottom_depth,'/Users/jamesrco/Code/global-trawling-CO2/data/global_trawling/derived/benthic_seqfractions/bottom_depth_m.csv')
+writematrix(MASK(:,:,1),'benthic_seqfractions/mask_surface.csv')
+writematrix(time,'benthic_seqfractions/model_timesteps.csv')
+writematrix(DEPTH(1,1,:),'benthic_seqfractions/OCIM_modelDepths.csv')
+writematrix(LAT(:,1,1),'benthic_seqfractions/lat_degN.csv')
+writematrix(LON(1,:,1),'benthic_seqfractions/long_degE.csv')
+writematrix(bottom_depth,'benthic_seqfractions/bottom_depth_m.csv')
 
 % % save .csv file containing all the seq fractions
 % 
-% writematrix(fseq,'/Users/jamesrco/Code/global-trawling-CO2/data/global_trawling/derived/benthic_seqfractions/fseq_all.csv')
+% writematrix(fseq,'benthic_seqfractions/fseq_all.csv')
