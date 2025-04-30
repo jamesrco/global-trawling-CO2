@@ -1,5 +1,11 @@
 # global-trawling-CO2
-Code and data for refinement of the benthic trawling CO<sub>2</sub> emissions estimate originally presented in [Sala et al., 2021. Protecting the global ocean for biodiversity, food and climate. *Nature* **592**, 397–402](https://doi.org/10.1038/s41586-021-03371-z). These calculations appear in the preprint [Atmospheric carbon emissions from benthic trawling depend on water depth and ocean circulation](https://eartharxiv.org/repository/view/4633/), which has been submitted to EarthArXiv pending publication elsewhere. Calculations and data pertaining to other animal-mediated ocean carbon fluxes, including an analysis of the possible climate impacts from new benthic trawling in the emerging Arctic and support for a separate review (in prep) of zoogeochemical carbon fluxes in the ocean, are in [this repository](https://github.com/jamesrco/zoonotic-C).
+Code and data to support:
+
+Collins, J. R., K. M. Kleisner, R. M. Fujita, and R. E. Boenish (2025). Ocean depth, circulation and biogeochemistry drive geographic disparities in potential emissions from benthic trawling. In revision for *PLOS Climate*.
+
+This paper revisits the estimates of CO<sub>2</sub> emissions from benthic trawling originally presented in [Sala et al., 2021. Protecting the global ocean for biodiversity, food and climate. *Nature* **592**, 397–402](https://doi.org/10.1038/s41586-021-03371-z) and refined in [Atwood et al., 2024. Atmospheric CO<sub>2</sub> emissions and ocean acidification from bottom-trawling. *Frontiers in Marine Science* 10:1125137](https://doi.org/10.3389/fmars.2023.1125137). The calculations originally appeared in the preprint [Atmospheric carbon emissions from benthic trawling depend on water depth and ocean circulation](https://eartharxiv.org/repository/view/4633/), which was submitted to EarthArXiv.
+
+Calculations and data pertaining to other animal-mediated ocean carbon fluxes, including an analysis of the possible climate impacts from new benthic trawling in the emerging Arctic and support for a separate review of zoogeochemical carbon fluxes in the ocean in *Global Biogeochemical Cycles*, are in [this repository](https://github.com/jamesrco/zoonotic-C).
 
 ### Raw, unmodified data and files
 

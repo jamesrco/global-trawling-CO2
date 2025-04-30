@@ -110,6 +110,8 @@ effluxEstHist_numObs <- hist(Sala_CO2efflux_nonZeroValueDepths_adj$rvalue_1, bre
      main = expression(paste("Histogram of CO"["2"]," efflux estimates from Sala et al. trawling disturbance model")))
 
 # what about a similar plot that sums things by mass instead
+
+# 100 m depth bins
 bins <- cut(Sala_CO2efflux_nonZeroValueDepths_adj$rvalue_1, breaks = seq(-3400,0,100))
 sums_PgCO2 <- tapply(Sala_CO2_efflux.df$co2_efflux[ind.nonZeroCO2], bins, sum)*
 SalaModel_cell_area*(1/10^9)
@@ -130,6 +132,70 @@ axis(2, at = seq(0,1,0.2))
 sum(sums_PgCO2[34])/sum(sums_PgCO2, na.rm = T) # fraction CO2 efflux (by mass) in 0-100 m depth bin
 sum(sums_PgCO2[33:34])/sum(sums_PgCO2, na.rm = T) # fraction CO2 efflux (by mass) in 0-200 m depth bin
 sum(sums_PgCO2[1:32], na.rm = T)/sum(sums_PgCO2, na.rm = T) # fraction CO2 efflux (by mass) originating in water depths > 200 m
+
+# some higher resolution depth binning (1 m bins), per a request from Monica on 22 Sep 23
+effluxEstHist_numObs.hires <- hist(Sala_CO2efflux_nonZeroValueDepths_adj$rvalue_1, breaks = seq(-3400,0,1),
+                             xlab = "Water column depth (m)",
+                             ylab = expression(paste("No. observations of est. CO"["2"]," efflux")),
+                             main = expression(paste("Histogram of CO"["2"]," efflux estimates from Sala et al. trawling disturbance model")))
+
+bins.hires <- cut(Sala_CO2efflux_nonZeroValueDepths_adj$rvalue_1, breaks = seq(-3400,0,1))
+sums_PgCO2.hires <- tapply(Sala_CO2_efflux.df$co2_efflux[ind.nonZeroCO2], bins.hires, sum)*
+  SalaModel_cell_area*(1/10^9)
+
+effluxEstHist_mass.hires <- effluxEstHist_numObs.hires
+effluxEstHist_mass.hires$counts <- sums_PgCO2.hires
+
+plot(effluxEstHist_mass.hires,
+     xlim = c(-3500,0),
+     ylim = c(0,0.018),
+     xlab = "Water column depth at location of estimate (m)",
+     ylab = expression(paste("Sala et al. est. CO"["2"]," efflux (Pg CO"["2"],")")),
+     main = expression(paste("Total estimated CO"["2"]," efflux from benthic trawling disturbance, by water column depth")),
+     yaxt = "n")
+
+axis(2, at = seq(0,0.018,0.004))
+
+# export a matrix for Monica, 1 m depth bins
+
+export.1mbins <- data.frame(effluxEstHist_mass.hires$breaks[1:3400],effluxEstHist_mass.hires$counts)
+colnames(export.1mbins) <- c("Depth bin (m)", "Efflux (Pg CO2)")
+
+write.csv(export.1mbins,
+          "data/global_trawling/derived/output/Sala_CO2_efflux_by_bottomdepth_1m_bins_PgCO2.csv",
+          row.names = FALSE)
+
+# also some binning at 50 m intervals
+effluxEstHist_numObs.50m <- hist(Sala_CO2efflux_nonZeroValueDepths_adj$rvalue_1, breaks = seq(-3400,0,50),
+                                   xlab = "Water column depth (m)",
+                                   ylab = expression(paste("No. observations of est. CO"["2"]," efflux")),
+                                   main = expression(paste("Histogram of CO"["2"]," efflux estimates from Sala et al. trawling disturbance model")))
+
+bins.50m <- cut(Sala_CO2efflux_nonZeroValueDepths_adj$rvalue_1, breaks = seq(-3400,0,50))
+sums_PgCO2.50m <- tapply(Sala_CO2_efflux.df$co2_efflux[ind.nonZeroCO2], bins.50m, sum)*
+  SalaModel_cell_area*(1/10^9)
+
+effluxEstHist_mass.50m <- effluxEstHist_numObs.50m
+effluxEstHist_mass.50m$counts <- sums_PgCO2.50m
+
+plot(effluxEstHist_mass.50m,
+     xlim = c(-3500,0),
+     ylim = c(0,0.5),
+     xlab = "Water column depth at location of estimate (m)",
+     ylab = expression(paste("Sala et al. est. CO"["2"]," efflux (Pg CO"["2"],")")),
+     main = expression(paste("Total estimated CO"["2"]," efflux from benthic trawling disturbance, by water column depth")),
+     yaxt = "n")
+
+axis(2, at = seq(0,0.5,0.1))
+
+# export a matrix for Monica, 50 m depth bins
+
+export.50mbins <- data.frame(effluxEstHist_mass.50m$breaks[1:68],effluxEstHist_mass.50m$counts)
+colnames(export.50mbins) <- c("50 m depth bin", "Efflux (Pg CO2)")
+
+write.csv(export.50mbins,
+          "data/global_trawling/derived/output/Sala_CO2_efflux_by_bottomdepth_50m_bins_PgCO2.csv",
+          row.names = FALSE)
 
 # now, can find most appropriate (nearest) sequestration fraction for each point in the CO2 flux dataset
 
